@@ -1,3 +1,30 @@
+# UNIMARKET
+
+Aplicación móvil de catálogo y compras desarrollada en Flutter.
+
+Descripción
+- Muestra productos, permite búsqueda y filtrado.
+- Onboarding con persistencia para no repetir la pantalla inicial.
+- Arquitectura por capas (domain, data, presentation) y gestión de estado con `flutter_bloc`.
+
+Estructura básica
+- `lib/main.dart`: entrada de la aplicación.
+- `lib/core/injection_container.dart`: registro de dependencias (GetIt).
+- `lib/presentation/`: vistas, páginas y widgets.
+- `lib/data/` y `lib/domain/`: implementación y casos de uso.
+
+Ejecución
+```bash
+flutter pub get
+flutter run
+```
+
+Notas
+- No incluyas `android/local.properties` ni credenciales en el repositorio.
+- Para ver el estado del proyecto: `flutter analyze` y `flutter test`.
+
+Licencia
+- Añade un fichero `LICENSE` si quieres publicar el proyecto bajo una licencia.
 UniMarket es una aplicación móvil diseñada para centralizar y visibilizar los emprendimientos de estudiantes de la Universidad del Magdalena, facilitando la conexión directa entre emprendedores y consumidores dentro del entorno universitario. La aplicación surge como respuesta a la falta de un canal digital unificado que permita a los estudiantes comercializar sus productos y servicios de manera eficiente.
 
 Desde un enfoque técnico, UniMarket integra procesamiento local de datos y criterios de optimización multiobjetivo para mejorar la visibilidad de los emprendimientos, la relevancia de las recomendaciones y la eficiencia en la interacción usuario–emprendedor. Su diseño prioriza el rendimiento, la escalabilidad y la experiencia de usuario, consolidándose como una herramienta móvil de apoyo al ecosistema emprendedor y a la autonomía económica estudiantil.
