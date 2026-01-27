@@ -1,29 +1,48 @@
-// lib/presentation/pages/home_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/product_entity.dart';
 import '../viewmodels/product/product_cubit.dart';
 import '../views/product_grid_view.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
-  
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _currentIndex = 0;
+  String _selectedCategory = 'Todos';
+  final List<String> categories = ['Todos', 'Ropa', 'Comida', 'Accesorio'];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProductCubit>().loadProducts();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('UNIMARKET'),
+        title: const Text(
+          'ENTREGAR A Bloque 8',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {},
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Image.asset(
-              'lib/assets/images/Bienvenida.png',
-              width: 24,
-              height: 24,
-            ),
+            icon: const Icon(Icons.search, color: Colors.black),
             onPressed: () {},
           ),
         ],
@@ -31,16 +50,16 @@ class HomePage extends StatelessWidget {
       body: BlocConsumer<ProductCubit, ProductState>(
         listener: (context, state) {
           if (state is ProductError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
           if (state is ProductLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (state is ProductError) {
             return Center(
               child: Column(
@@ -55,14 +74,15 @@ class HomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => context.read<ProductCubit>().loadProducts(),
+                    onPressed: () =>
+                        context.read<ProductCubit>().loadProducts(),
                     child: const Text('Reintentar'),
                   ),
                 ],
               ),
             );
           }
-          
+
           if (state is ProductEmpty) {
             return const Center(
               child: Column(
@@ -78,60 +98,112 @@ class HomePage extends StatelessWidget {
               ),
             );
           }
-          
+
           if (state is ProductLoaded) {
+            final products = state.products;
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Filtros
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  color: Colors.grey[100],
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          initialValue: 'Todos',
-                          items: ['Todos', 'Electrónica', 'Ropa', 'Hogar']
-                              .map((category) => DropdownMenuItem(
-                                    value: category,
-                                    child: Text(category),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != 'Todos') {
-                              context.read<ProductCubit>().filterByCategory(value!);
-                            }
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'Categoría',
-                            border: OutlineInputBorder(),
+                // Búsqueda
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search, color: Colors.grey),
+                          SizedBox(width: 8),
+                          Text(
+                            'Buscar',
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
                           ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      IconButton(
-                        icon: const Icon(Icons.sort),
-                        onPressed: () {
-                          // Implementar ordenamiento
-                        },
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-                
-                // Lista de productos
-                Expanded(
-                  child: ProductGridView(
-                    products: state.products,
-                    onProductTap: (product) {
-                      _showProductDetail(context, product);
+
+                // Título Descuentos
+                const Padding(
+                  padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+                  child: Text(
+                    'Descuentos',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+
+                // Categorías horizontal
+                SizedBox(
+                  height: 40,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final cat = categories[index];
+                      final selected = _selectedCategory == cat;
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          left: index == 0 ? 16.0 : 8.0,
+                          right: index == categories.length - 1 ? 16.0 : 0,
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() => _selectedCategory = cat);
+                            if (cat == 'Todos') {
+                              context.read<ProductCubit>().loadProducts();
+                            } else {
+                              context.read<ProductCubit>().filterByCategory(
+                                cat,
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: selected ? Colors.blue : Colors.grey[300],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              cat,
+                              style: TextStyle(
+                                color: selected ? Colors.white : Colors.black,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
                     },
+                  ),
+                ),
+
+                // Grid de productos
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ProductGridView(
+                      products: products,
+                      onProductTap: (product) =>
+                          _showProductDetail(context, product),
+                    ),
                   ),
                 ),
               ],
             );
           }
-          
+
           return Center(
             child: ElevatedButton(
               onPressed: () => context.read<ProductCubit>().loadProducts(),
@@ -140,13 +212,39 @@ class HomePage extends StatelessWidget {
           );
         },
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_offer),
+            label: 'Promos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_bag),
+            label: 'Pedidos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favoritos',
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.read<ProductCubit>().loadProducts(),
         child: const Icon(Icons.refresh),
       ),
     );
   }
-  
+
   void _showProductDetail(BuildContext context, ProductEntity product) {
     showDialog(
       context: context,
