@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Modify this file to customize your launch splash screen -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Gradient background matching app palette -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#FF230989"
+                android:centerColor="#FF250088"
+                android:endColor="#FF6B3AEE"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Optional centered launch image (uncomment and provide @mipmap/launch_image) -->
+    <!--
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/launch_image" />
+    </item>
+    -->
+</layer-list>
