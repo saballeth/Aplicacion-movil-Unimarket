@@ -11,6 +11,14 @@ import '../domain/repositories/product_repository.dart';
 import '../domain/usecases/get_products_usecase.dart';
 import '../presentation/viewmodels/product/product_cubit.dart';
 import '../presentation/viewmodels/onboarding/onboarding_cubit.dart';
+import '../presentation/viewmodels/registration/registration_cubit.dart';
+import '../presentation/viewmodels/login/login_cubit.dart';
+import '../presentation/viewmodels/password_recovery/password_recovery_cubit.dart';
+import '../presentation/viewmodels/email_confirmation/email_confirmation_cubit.dart';
+import '../presentation/viewmodels/auth/auth_cubit.dart';
+import '../presentation/viewmodels/product_detail/product_detail_cubit.dart';
+import '../presentation/viewmodels/orders/orders_cubit.dart';
+import '../presentation/viewmodels/profile/profile_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -40,4 +48,13 @@ Future<void> init() async {
   //! Bloc / Cubit
   sl.registerFactory(() => ProductCubit(sl()));
   sl.registerFactory(() => OnboardingCubit(sl()));  // Agregar esta línea
+  sl.registerFactory(() => RegistrationCubit());
+  sl.registerFactory(() => LoginCubit());
+  sl.registerFactory(() => PasswordRecoveryCubit());
+  sl.registerFactory(() => OrdersCubit());
+  sl.registerFactory(() => ProfileCubit());
+  // AuthCubit should be singleton so auth state persists across app
+  sl.registerLazySingleton(() => AuthCubit());
+  sl.registerFactory(() => EmailConfirmationCubit());
+  sl.registerFactory(() => ProductDetailCubit());
 }

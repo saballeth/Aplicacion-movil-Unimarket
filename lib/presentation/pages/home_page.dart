@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/entities/product_entity.dart';
-import '../viewmodels/product/product_cubit.dart';
-import '../views/product_grid_view.dart';
+import 'package:unimarket/core/injection_container.dart';
+import 'package:unimarket/domain/entities/product_entity.dart';
+import 'package:unimarket/presentation/pages/login/login_page.dart';
+import 'package:unimarket/presentation/pages/orders/orders_page.dart';
+import 'package:unimarket/presentation/pages/product_detail/product_detail_page.dart';
+import 'package:unimarket/presentation/pages/profile/profile_page.dart';
+import 'package:unimarket/presentation/pages/promos/promos_page.dart';
+import 'package:unimarket/presentation/pages/cart/cart_page.dart';
+import 'package:unimarket/presentation/pages/favorites/favorites_page.dart';
+import 'package:unimarket/presentation/viewmodels/auth/auth_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/login/login_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/product/product_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/product/product_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,6 +30,21 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = sl<AuthCubit>();
+      if (!auth.isAuthenticated()) {
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => BlocProvider(
+                create: (_) => sl<LoginCubit>(),
+                child: const LoginPage(),
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
       context.read<ProductCubit>().loadProducts();
     });
   }
@@ -37,8 +62,12 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
+          icon: const Icon(Icons.person, color: Colors.black),
+          onPressed: () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const ProfilePage()));
+          },
         ),
         actions: [
           IconButton(
@@ -47,233 +76,414 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: BlocConsumer<ProductCubit, ProductState>(
-        listener: (context, state) {
-          if (state is ProductError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
-          }
+      body: _buildCurrentPage(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFF5A623),
+        child: const Icon(Icons.shopping_cart),
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const CartPage()));
         },
-        builder: (context, state) {
-          if (state is ProductLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
 
-          if (state is ProductError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(
-                    state.message,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () =>
-                        context.read<ProductCubit>().loadProducts(),
-                    child: const Text('Reintentar'),
-                  ),
-                ],
-              ),
-            );
-          }
+  Widget _buildCurrentPage() {
+    switch (_currentIndex) {
+      case 0:
+        return _buildHomePage();
+      case 1:
+        return _buildPromosPage();
+      case 2:
+        return const OrdersPage(deliveredOnly: true);
+      case 3:
+        return _buildFavoritesPage();
+      case 4:
+        return _buildCartPage();
+      default:
+        return _buildHomePage();
+    }
+  }
 
-          if (state is ProductEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.inventory_2, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text(
-                    'No hay productos disponibles',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
-          }
+  Widget _buildHomePage() {
+    return BlocConsumer<ProductCubit, ProductState>(
+      listener: (context, state) {
+        if (state is ProductError) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      builder: (context, state) {
+        if (state is ProductLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          if (state is ProductLoaded) {
-            final products = state.products;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        if (state is ProductError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Búsqueda
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(
+                  state.message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => context.read<ProductCubit>().loadProducts(),
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (state is ProductEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.inventory_2, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'No hay productos disponibles',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (state is ProductLoaded) {
+          final products = state.products;
+          return _buildProductGrid(products);
+        }
+
+        return Center(
+          child: ElevatedButton(
+            onPressed: () => context.read<ProductCubit>().loadProducts(),
+            child: const Text('Cargar Productos'),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProductGrid(List<ProductEntity> products) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Barra de búsqueda
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Icon(Icons.search, color: Colors.grey),
+                  SizedBox(width: 8),
+                  Text(
+                    'Buscar',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
                   ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Título Descuentos
+        const Padding(
+          padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+          child: Text(
+            'Descuentos',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+
+        // Categorías horizontal
+        SizedBox(
+          height: 40,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final cat = categories[index];
+              final selected = _selectedCategory == cat;
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: index == 0 ? 16.0 : 8.0,
+                  right: index == categories.length - 1 ? 16.0 : 0,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() => _selectedCategory = cat);
+                    if (cat == 'Todos') {
+                      context.read<ProductCubit>().loadProducts();
+                    } else {
+                      context.read<ProductCubit>().filterByCategory(cat);
+                    }
+                  },
                   child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(25),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          Icon(Icons.search, color: Colors.grey),
-                          SizedBox(width: 8),
-                          Text(
-                            'Buscar',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          ),
-                        ],
+                    decoration: BoxDecoration(
+                      color: selected ? Colors.blue : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      cat,
+                      style: TextStyle(
+                        color: selected ? Colors.white : Colors.black,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                 ),
+              );
+            },
+          ),
+        ),
 
-                // Título Descuentos
-                const Padding(
-                  padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-                  child: Text(
-                    'Descuentos',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
+        // Grid de productos
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GridView.builder(
+              itemCount: products.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.75,
+              ),
+              itemBuilder: (context, index) {
+                final entity = products[index];
+                final item = ProductItem.fromEntity(entity);
+                return _buildProductCardFromItem(item, entity);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-                // Categorías horizontal
-                SizedBox(
-                  height: 40,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      final cat = categories[index];
-                      final selected = _selectedCategory == cat;
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          left: index == 0 ? 16.0 : 8.0,
-                          right: index == categories.length - 1 ? 16.0 : 0,
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() => _selectedCategory = cat);
-                            if (cat == 'Todos') {
-                              context.read<ProductCubit>().loadProducts();
-                            } else {
-                              context.read<ProductCubit>().filterByCategory(
-                                cat,
-                              );
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 8.0,
-                            ),
-                            decoration: BoxDecoration(
-                              color: selected ? Colors.blue : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              cat,
-                              style: TextStyle(
-                                color: selected ? Colors.white : Colors.black,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                // Grid de productos
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ProductGridView(
-                      products: products,
-                      onProductTap: (product) =>
-                          _showProductDetail(context, product),
+  Widget _buildProductCardFromItem(ProductItem item, ProductEntity entity) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => ProductDetailPage(product: entity)),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.06),
+              spreadRadius: 1,
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: item.color,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.shopping_bag,
+                        size: 60,
+                        color: Colors.grey[400],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          }
-
-          return Center(
-            child: ElevatedButton(
-              onPressed: () => context.read<ProductCubit>().loadProducts(),
-              child: const Text('Cargar Productos'),
+                  if (item.hasDiscount)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Oferta',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          );
-        },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_offer),
-            label: 'Promos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'Pedidos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoritos',
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.read<ProductCubit>().loadProducts(),
-        child: const Icon(Icons.refresh),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.priceLabel,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.blue[800],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.store,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[800],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Comprar',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _showProductDetail(BuildContext context, ProductEntity product) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(product.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(product.description),
-            const SizedBox(height: 16),
-            Text('Precio: \$${product.finalPrice.toStringAsFixed(2)}'),
-            Text('Stock disponible: ${product.stock}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
+  Widget _buildPromosPage() {
+    return const PromosPage();
+  }
+
+  Widget _buildFavoritesPage() {
+      return const FavoritesPage();
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      height: 71,
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromRGBO(0, 0, 0, 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          ElevatedButton(
-            onPressed: () {
-              // Agregar al carrito
-              Navigator.pop(context);
-            },
-            child: const Text('Agregar al Carrito'),
+        ],
+      ),
+      child: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        selectedItemColor: const Color(0xFFF5A623),
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 12,
+        ),
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(_currentIndex == 0 ? Icons.home : Icons.home_outlined),
+            label: 'Inicio',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              _currentIndex == 1
+                  ? Icons.local_offer
+                  : Icons.local_offer_outlined,
+            ),
+            label: 'Promos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              _currentIndex == 2
+                  ? Icons.shopping_bag
+                  : Icons.shopping_bag_outlined,
+            ),
+            label: 'Pedidos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              _currentIndex == 3 ? Icons.favorite : Icons.favorite_border,
+            ),
+            label: 'Favoritos',
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildCartPage() {
+    return const CartPage();
   }
 }
