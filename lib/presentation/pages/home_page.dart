@@ -7,6 +7,7 @@ import 'package:unimarket/presentation/pages/orders/orders_page.dart';
 import 'package:unimarket/presentation/pages/product_detail/product_detail_page.dart';
 import 'package:unimarket/presentation/pages/profile/profile_page.dart';
 import 'package:unimarket/presentation/pages/promos/promos_page.dart';
+import '../widgets/bottom_nav_custom.dart';
 import 'package:unimarket/presentation/pages/cart/cart_page.dart';
 import 'package:unimarket/presentation/pages/favorites/favorites_page.dart';
 import 'package:unimarket/presentation/viewmodels/auth/auth_cubit.dart';
@@ -420,65 +421,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return Container(
-      height: 71,
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromRGBO(0, 0, 0, 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: const Color(0xFFF5A623),
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(color: const Color.fromRGBO(0, 0, 0, 0.08), blurRadius: 20, offset: const Offset(0, 8)),
+          ],
         ),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 12,
+        child: BottomNavCustom(
+          selectedIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          onCartTap: () => setState(() => _currentIndex = 2),
         ),
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(_currentIndex == 0 ? Icons.home : Icons.home_outlined),
-            label: 'Inicio',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              _currentIndex == 1
-                  ? Icons.local_offer
-                  : Icons.local_offer_outlined,
-            ),
-            label: 'Promos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              _currentIndex == 2
-                  ? Icons.shopping_bag
-                  : Icons.shopping_bag_outlined,
-            ),
-            label: 'Pedidos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              _currentIndex == 3 ? Icons.favorite : Icons.favorite_border,
-            ),
-            label: 'Favoritos',
-          ),
-        ],
       ),
     );
   }

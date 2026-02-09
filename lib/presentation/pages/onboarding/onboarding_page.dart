@@ -18,7 +18,6 @@ class OnboardingPage extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // Top: image occupying ~70%
               Expanded(
                 flex: 7,
                 child: Center(
@@ -29,7 +28,6 @@ class OnboardingPage extends StatelessWidget {
                 ),
               ),
 
-              // Bottom: welcome text and button occupying ~30%
               Expanded(
                 flex: 3,
                 child: Padding(

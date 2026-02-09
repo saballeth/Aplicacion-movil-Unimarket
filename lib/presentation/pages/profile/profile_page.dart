@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/core/injection_container.dart';
 import '../../viewmodels/profile/profile_cubit.dart';
+import 'edit_profile_page.dart';
+import 'ajustes_page.dart';
+import 'entrepreneur_page.dart';
 import '../../viewmodels/profile/profile_state.dart';
 // orders page import removed; option no longer shown in profile
 
@@ -67,7 +70,7 @@ class _ProfileView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Información del usuario
-            _buildUserInfo(name, email),
+            _buildUserInfo(context, name, email),
             const SizedBox(height: 24),
             const Divider(height: 1, color: Colors.grey),
             const SizedBox(height: 24),
@@ -82,7 +85,7 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildUserInfo(String name, String email) {
+  Widget _buildUserInfo(BuildContext context, String name, String email) {
     return Row(
       children: [
         Container(
@@ -114,7 +117,13 @@ class _ProfileView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               TextButton(
-                onPressed: () {},
+                onPressed: () async {
+                  final cubit = context.read<ProfileCubit>();
+                  final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EditarPerfilPage()));
+                  if (result is Map<String, String>) {
+                    cubit.updateProfile(name: result['name'], email: result['email']);
+                  }
+                },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -131,7 +140,13 @@ class _ProfileView extends StatelessWidget {
           ),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () async {
+            final cubit = context.read<ProfileCubit>();
+            final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EditarPerfilPage()));
+            if (result is Map<String, String>) {
+              cubit.updateProfile(name: result['name'], email: result['email']);
+            }
+          },
           icon: const Icon(Icons.edit_outlined, color: Color(0xFFF5A623)),
         ),
       ],
@@ -276,12 +291,21 @@ class _ProfileView extends StatelessWidget {
     switch (title) {
       // 'Mis pedidos' navigation removed (option not present)
       case 'Quiero ser emprendedor/a':
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EntrepreneurPage()));
         break;
       case 'Editar perfil':
+        () async {
+          final cubit = context.read<ProfileCubit>();
+          final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EditarPerfilPage()));
+          if (result is Map<String, String>) {
+            cubit.updateProfile(name: result['name'], email: result['email']);
+          }
+        }();
         break;
       case 'Ayuda':
         break;
       case 'Ajustes':
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AjustesPage()));
         break;
     }
   }

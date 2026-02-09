@@ -38,7 +38,6 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Cheerful animated Lottie
                 Center(
                   child: SizedBox(
                     height: 180,
@@ -55,7 +54,11 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
                 Text(
                   vm.title,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
 
                 const SizedBox(height: 12),
@@ -72,15 +75,22 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Close the confirmation and navigate back to home
                       Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF5A623),
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: const Text('Volver al inicio', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    child: const Text(
+                      'Volver al inicio',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
 
@@ -88,9 +98,7 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
 
                 TextButton(
                   onPressed: () {
-                    // Optionally view order history
                     Navigator.of(context).popUntil((route) => route.isFirst);
-                    // In a real app you might navigate to Orders screen
                   },
                   child: const Text('Ver historial de pedidos'),
                 ),

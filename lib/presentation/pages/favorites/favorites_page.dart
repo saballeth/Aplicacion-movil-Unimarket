@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../viewmodels/favorites/favorites_viewmodel.dart';
+import '../../widgets/bottom_nav_custom.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -32,7 +33,28 @@ class _FavoritesPageState extends State<FavoritesPage> {
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: _buildBody(),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: BottomNavCustom(
+          selectedIndex: 4,
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                Navigator.of(context).pushReplacementNamed('/');
+                break;
+              case 1:
+                Navigator.of(context).pushReplacementNamed('/promos');
+                break;
+              case 3:
+                Navigator.of(context).pushReplacementNamed('/orders');
+                break;
+              case 4:
+                break;
+            }
+          },
+          onCartTap: () => Navigator.of(context).pushNamed('/cart'),
+        ),
+      ),
     );
   }
 
@@ -194,23 +216,5 @@ class _FavoritesPageState extends State<FavoritesPage> {
     );
   }
 
-  BottomNavigationBar _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      currentIndex: 3,
-      onTap: (index) {},
-      backgroundColor: Colors.white,
-      selectedItemColor: const Color(0xFFF5A623),
-      unselectedItemColor: Colors.grey.shade600,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-      elevation: 4,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Inicio'),
-        BottomNavigationBarItem(icon: Icon(Icons.local_offer_outlined), activeIcon: Icon(Icons.local_offer), label: 'Promos'),
-        BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), activeIcon: Icon(Icons.shopping_bag), label: 'Pedidos'),
-        BottomNavigationBarItem(icon: Icon(Icons.favorite_outlined), activeIcon: Icon(Icons.favorite), label: 'Favoritos'),
-      ],
-    );
-  }
+  // Bottom navigation replaced by shared BottomNavCustom
 }
