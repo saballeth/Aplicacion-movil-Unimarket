@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../viewmodels/promos/promos_viewmodel.dart';
 import '../product/product_details_page.dart';
-import '../../widgets/bottom_nav_custom.dart';
 
 class PromosPage extends StatefulWidget {
   const PromosPage({super.key});
@@ -34,29 +33,6 @@ class _PromosPageState extends State<PromosPage> {
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: _buildBody(),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: BottomNavCustom(
-          selectedIndex: 1,
-          onTap: (index) {
-            // simple behavior: switch pages via Navigator if needed
-            switch (index) {
-              case 0:
-                Navigator.of(context).pushReplacementNamed('/');
-                break;
-              case 1:
-                break;
-              case 3:
-                Navigator.of(context).pushReplacementNamed('/orders');
-                break;
-              case 4:
-                Navigator.of(context).pushReplacementNamed('/favorites');
-                break;
-            }
-          },
-          onCartTap: () => Navigator.of(context).pushNamed('/cart'),
-        ),
-      ),
     );
   }
 
