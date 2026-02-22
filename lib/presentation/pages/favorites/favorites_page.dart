@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../viewmodels/favorites/favorites_viewmodel.dart';
-import '../../widgets/bottom_nav_custom.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -33,28 +32,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: _buildBody(),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: BottomNavCustom(
-          selectedIndex: 4,
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                Navigator.of(context).pushReplacementNamed('/');
-                break;
-              case 1:
-                Navigator.of(context).pushReplacementNamed('/promos');
-                break;
-              case 3:
-                Navigator.of(context).pushReplacementNamed('/orders');
-                break;
-              case 4:
-                break;
-            }
-          },
-          onCartTap: () => Navigator.of(context).pushNamed('/cart'),
-        ),
-      ),
     );
   }
 
@@ -88,7 +65,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search bar
             Container(
               height: 50,
               decoration: BoxDecoration(
@@ -141,7 +117,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: items.length,
-              separatorBuilder: (context, index) => const Divider(height: 32, color: Colors.grey),
+              separatorBuilder: (context, index) =>
+                  const Divider(height: 32, color: Colors.grey),
               itemBuilder: (context, index) {
                 final it = items[index];
                 return _buildFavoriteItem(it);
@@ -157,7 +134,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
     return GestureDetector(
       onTap: () {},
       child: Container(
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -165,10 +145,18 @@ class _FavoritesPageState extends State<FavoritesPage> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: item.isFood ? const Color.fromRGBO(245, 166, 35, 0.1) : Colors.blue.withAlpha(25),
+                color: item.isFood
+                    ? const Color.fromRGBO(245, 166, 35, 0.1)
+                    : Colors.blue.withAlpha(25),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(item.isFood ? Icons.restaurant : Icons.shopping_bag, size: 40, color: item.isFood ? const Color(0xFFF5A623) : Colors.blue),
+              child: Icon(
+                item.isFood ? Icons.restaurant : Icons.shopping_bag,
+                size: 40,
+                color: item.isFood
+                    ? const Color(0xFFF5A623)
+                    : Colors.blue,
+              ),
             ),
 
             const SizedBox(width: 16),
@@ -177,30 +165,76 @@ class _FavoritesPageState extends State<FavoritesPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.storeName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                  Text(
+                    item.storeName,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
 
                   if (item.productName != null) ...[
                     const SizedBox(height: 4),
-                    Text(item.productName!, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)),
+                    Text(
+                      item.productName!,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
                   ],
 
                   if (item.price != null) ...[
                     const SizedBox(height: 8),
-                    Text('\$ ${item.price!.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"),(Match m) => '${m[1]}.')}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                    Text(
+                      '\$ ${item.price!.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => '${m[1]}.')}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
                   ],
 
                   if (item.rating != null && item.reviewCount != null) ...[
                     const SizedBox(height: 8),
-                    Row(children: [
-                      Row(children: List.generate(5, (starIndex) => Icon(starIndex < item.rating!.floor() ? Icons.star : Icons.star_border, size: 16, color: const Color(0xFFF5A623)))),
-                      const SizedBox(width: 4),
-                      Text('${item.rating!.toStringAsFixed(1)} (${item.reviewCount})', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
-                    ]),
+                    Row(
+                      children: [
+                        Row(
+                          children: List.generate(
+                            5,
+                            (starIndex) => Icon(
+                              starIndex < item.rating!.floor()
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              size: 16,
+                              color: const Color(0xFFF5A623),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${item.rating!.toStringAsFixed(1)} (${item.reviewCount})',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
 
                   if (item.price == null && item.rating == null) ...[
                     const SizedBox(height: 8),
-                    Text(item.productName ?? '', style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
+                    Text(
+                      item.productName ?? '',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -208,13 +242,15 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
             IconButton(
               onPressed: () => vm.remove(item.id),
-              icon: const Icon(Icons.favorite, color: Colors.red, size: 24),
+              icon: const Icon(
+                Icons.favorite,
+                color: Colors.red,
+                size: 24,
+              ),
             ),
           ],
         ),
       ),
     );
   }
-
-  // Bottom navigation replaced by shared BottomNavCustom
 }

@@ -99,11 +99,11 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return _buildPromosPage();
       case 2:
-        return const OrdersPage(deliveredOnly: true);
-      case 3:
-        return _buildFavoritesPage();
-      case 4:
         return _buildCartPage();
+      case 3:
+        return _buildOrdersPage();
+      case 4:
+        return _buildFavoritesPage();
       default:
         return _buildHomePage();
     }
@@ -177,110 +177,139 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductGrid(List<ProductEntity> products) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Barra de búsqueda
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(25),
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final width = constraints.maxWidth;
+
+      int crossAxisCount;
+      double childAspectRatio;
+
+      if (width < 600) {
+        // 📱 Teléfonos
+        crossAxisCount = 2;
+        childAspectRatio = 0.72;
+      } else if (width < 1000) {
+        // 📱 Tablets
+        crossAxisCount = 3;
+        childAspectRatio = 0.75;
+      } else {
+        // 💻 Desktop/Web
+        crossAxisCount = 4;
+        childAspectRatio = 0.85;
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSearchBar(),
+          const Padding(
+            padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+            child: Text(
+              'Descuentos',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  Icon(Icons.search, color: Colors.grey),
-                  SizedBox(width: 8),
-                  Text(
-                    'Buscar',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                ],
+          ),
+          _buildCategories(),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: width < 600 ? 16 : width * 0.05,
+                vertical: 16,
+              ),
+              child: GridView.builder(
+                itemCount: products.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: childAspectRatio,
+                ),
+                itemBuilder: (context, index) {
+                  final entity = products[index];
+                  final item = ProductItem.fromEntity(entity);
+                  return _buildProductCardFromItem(item, entity);
+                },
               ),
             ),
           ),
-        ),
+        ],
+      );
+    },
+  );
+}
 
-        // Título Descuentos
-        const Padding(
-          padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-          child: Text(
-            'Descuentos',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(25),
         ),
-
-        // Categorías horizontal
-        SizedBox(
-          height: 40,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final cat = categories[index];
-              final selected = _selectedCategory == cat;
-              return Padding(
-                padding: EdgeInsets.only(
-                  left: index == 0 ? 16.0 : 8.0,
-                  right: index == categories.length - 1 ? 16.0 : 0,
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() => _selectedCategory = cat);
-                    if (cat == 'Todos') {
-                      context.read<ProductCubit>().loadProducts();
-                    } else {
-                      context.read<ProductCubit>().filterByCategory(cat);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    decoration: BoxDecoration(
-                      color: selected ? Colors.blue : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      cat,
-                      style: TextStyle(
-                        color: selected ? Colors.white : Colors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-
-        // Grid de productos
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GridView.builder(
-              itemCount: products.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.75,
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: [
+              Icon(Icons.search, color: Colors.grey),
+              SizedBox(width: 8),
+              Text(
+                'Buscar',
+                style: TextStyle(color: Colors.grey, fontSize: 16),
               ),
-              itemBuilder: (context, index) {
-                final entity = products[index];
-                final item = ProductItem.fromEntity(entity);
-                return _buildProductCardFromItem(item, entity);
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategories() {
+    return SizedBox(
+      height: 45,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          final cat = categories[index];
+          final selected = _selectedCategory == cat;
+
+          return Padding(
+            padding: EdgeInsets.only(
+              left: index == 0 ? 16.0 : 8.0,
+              right: index == categories.length - 1 ? 16.0 : 0,
+            ),
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _selectedCategory = cat);
+                if (cat == 'Todos') {
+                  context.read<ProductCubit>().loadProducts();
+                } else {
+                  context.read<ProductCubit>().filterByCategory(cat);
+                }
               },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: selected ? Colors.blue : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  cat,
+                  style: TextStyle(
+                    color: selected ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 
@@ -416,6 +445,10 @@ class _HomePageState extends State<HomePage> {
     return const PromosPage();
   }
 
+  Widget _buildOrdersPage() {
+    return const OrdersPage();
+  }
+  
   Widget _buildFavoritesPage() {
       return const FavoritesPage();
   }
