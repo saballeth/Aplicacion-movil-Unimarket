@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unimarket/core/injection_container.dart';
 import '../../viewmodels/addresses/addresses_viewmodel.dart';
 import 'add_address_page.dart';
 
@@ -10,7 +11,7 @@ class AddressesPage extends StatefulWidget {
 }
 
 class _AddressesPageState extends State<AddressesPage> {
-  final AddressesViewModel vm = AddressesViewModel();
+  final AddressesViewModel vm = sl<AddressesViewModel>();
 
   @override
   void initState() {
@@ -23,7 +24,6 @@ class _AddressesPageState extends State<AddressesPage> {
   @override
   void dispose() {
     vm.removeListener(_onVm);
-    vm.dispose();
     super.dispose();
   }
 

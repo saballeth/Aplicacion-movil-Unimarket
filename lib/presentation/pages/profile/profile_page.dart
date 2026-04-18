@@ -56,8 +56,14 @@ class _ProfileView extends StatelessWidget {
           fontSize: 24,
         ),
       ),
+      backgroundColor: Colors.white,
+      elevation: 0,
+      foregroundColor: Colors.black,
       actions: [
-        IconButton(icon: const Icon(Icons.settings_outlined), onPressed: () {}),
+        IconButton(
+          icon: const Icon(Icons.settings_outlined, color: Color(0xFF4B2AAD)),
+          onPressed: () {},
+        ),
       ],
     );
   }
@@ -92,10 +98,10 @@ class _ProfileView extends StatelessWidget {
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: Color.fromRGBO(245, 166, 35, 0.2),
+            color: const Color.fromRGBO(75, 42, 173, 0.12),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.person, size: 40, color: Color(0xFFF5A623)),
+          child: const Icon(Icons.person, size: 40, color: Color(0xFF4B2AAD)),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -116,39 +122,10 @@ class _ProfileView extends StatelessWidget {
                 style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 8),
-              TextButton(
-                onPressed: () async {
-                  final cubit = context.read<ProfileCubit>();
-                  final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EditarPerfilPage()));
-                  if (result is Map<String, String>) {
-                    cubit.updateProfile(name: result['name'], email: result['email']);
-                  }
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text(
-                  'Ver perfil completo',
-                  style: TextStyle(
-                    color: Color(0xFFF5A623),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
-        IconButton(
-          onPressed: () async {
-            final cubit = context.read<ProfileCubit>();
-            final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EditarPerfilPage()));
-            if (result is Map<String, String>) {
-              cubit.updateProfile(name: result['name'], email: result['email']);
-            }
-          },
-          icon: const Icon(Icons.edit_outlined, color: Color(0xFFF5A623)),
-        ),
+        // edit action removed (profile edited via menu item)
       ],
     );
   }
@@ -209,7 +186,7 @@ class _ProfileView extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(item.icon, color: const Color(0xFFF5A623), size: 24),
+                Icon(item.icon, color: const Color(0xFF4B2AAD), size: 24),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
@@ -228,7 +205,7 @@ class _ProfileView extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5A623),
+                      color: const Color(0xFF4B2AAD),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -291,12 +268,16 @@ class _ProfileView extends StatelessWidget {
     switch (title) {
       // 'Mis pedidos' navigation removed (option not present)
       case 'Quiero ser emprendedor/a':
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EntrepreneurPage()));
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const EntrepreneurPage()));
         break;
       case 'Editar perfil':
         () async {
           final cubit = context.read<ProfileCubit>();
-          final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EditarPerfilPage()));
+          final result = await Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const EditarPerfilPage()));
           if (result is Map<String, String>) {
             cubit.updateProfile(name: result['name'], email: result['email']);
           }
@@ -305,7 +286,9 @@ class _ProfileView extends StatelessWidget {
       case 'Ayuda':
         break;
       case 'Ajustes':
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AjustesPage()));
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const AjustesPage()));
         break;
     }
   }

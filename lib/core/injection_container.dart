@@ -10,6 +10,7 @@ import '../data/repositories/product_repository_impl.dart';
 import '../domain/repositories/product_repository.dart';
 import '../domain/usecases/get_products_usecase.dart';
 import '../presentation/viewmodels/product/product_cubit.dart';
+import '../presentation/viewmodels/addresses/addresses_viewmodel.dart';
 import '../presentation/viewmodels/onboarding/onboarding_cubit.dart';
 import '../presentation/viewmodels/registration/registration_cubit.dart';
 import '../presentation/viewmodels/login/login_cubit.dart';
@@ -47,6 +48,7 @@ Future<void> init() async {
   
   //! Bloc / Cubit
   sl.registerFactory(() => ProductCubit(sl()));
+  sl.registerLazySingleton(() => AddressesViewModel());
   sl.registerFactory(() => OnboardingCubit(sl()));  // Agregar esta línea
   sl.registerFactory(() => RegistrationCubit());
   sl.registerFactory(() => LoginCubit());

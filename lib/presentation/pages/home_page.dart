@@ -11,8 +11,13 @@ import '../widgets/bottom_nav_custom.dart';
 import 'package:unimarket/presentation/pages/cart/cart_page.dart';
 import 'package:unimarket/presentation/pages/favorites/favorites_page.dart';
 import 'package:unimarket/presentation/viewmodels/auth/auth_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/orders/orders_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/orders/orders_state.dart';
+import 'package:unimarket/presentation/viewmodels/profile/profile_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/profile/profile_state.dart';
 import 'package:unimarket/presentation/viewmodels/login/login_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/product/product_cubit.dart';
+import '../viewmodels/addresses/addresses_viewmodel.dart';
 import 'package:unimarket/presentation/viewmodels/product/product_item.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,10 +31,30 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   String _selectedCategory = 'Todos';
   final List<String> categories = ['Todos', 'Ropa', 'Comida', 'Accesorio'];
+  final AddressesViewModel _addrVm = sl<AddressesViewModel>();
+  late final OrdersCubit _ordersCubit;
+  int _pendingOrders = 0;
+  late final ProfileCubit _profileCubit;
+  String _userName = '';
 
   @override
   void initState() {
     super.initState();
+    _addrVm.addListener(_onAddressChanged);
+    _ordersCubit = OrdersCubit()..loadOrders();
+    _ordersCubit.stream.listen((s) {
+      if (s is OrdersLoaded) {
+        final pending = s.orders
+            .where((o) => o.status.toLowerCase() != 'entregado')
+            .length;
+        setState(() => _pendingOrders = pending);
+      }
+    });
+    _profileCubit = ProfileCubit();
+    _profileCubit.loadProfile();
+    _profileCubit.stream.listen((s) {
+      if (s is ProfileLoaded) setState(() => _userName = s.user.name);
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = sl<AuthCubit>();
       if (!auth.isAuthenticated()) {
@@ -50,32 +75,50 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _onAddressChanged() => setState(() {});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          'ENTREGAR A Bloque 8',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.person, color: Colors.black),
-          onPressed: () {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const ProfilePage()));
-          },
+          onPressed: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const OrdersPage())),
+          icon: Stack(
+            children: [
+              const Icon(Icons.notifications_none, color: Colors.black),
+              if (_pendingOrders > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$_pendingOrders',
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.black),
-            onPressed: () {},
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const ProfilePage())),
+            icon: const Icon(Icons.person, color: Colors.black),
           ),
         ],
+        // original leading/actions removed in favor of custom bell/profile
       ),
       body: _buildCurrentPage(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -90,6 +133,12 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
+  }
+
+  @override
+  void dispose() {
+    _addrVm.removeListener(_onAddressChanged);
+    super.dispose();
   }
 
   Widget _buildCurrentPage() {
@@ -177,139 +226,231 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductGrid(List<ProductEntity> products) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      final width = constraints.maxWidth;
-
-      int crossAxisCount;
-      double childAspectRatio;
-
-      if (width < 600) {
-        // 📱 Teléfonos
-        crossAxisCount = 2;
-        childAspectRatio = 0.72;
-      } else if (width < 1000) {
-        // 📱 Tablets
-        crossAxisCount = 3;
-        childAspectRatio = 0.75;
-      } else {
-        // 💻 Desktop/Web
-        crossAxisCount = 4;
-        childAspectRatio = 0.85;
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSearchBar(),
-          const Padding(
-            padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-            child: Text(
-              'Descuentos',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            'Hola. ${_userName.isNotEmpty ? _userName : ''}',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          _buildCategories(),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: width < 600 ? 16 : width * 0.05,
-                vertical: 16,
-              ),
-              child: GridView.builder(
-                itemCount: products.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: childAspectRatio,
-                ),
-                itemBuilder: (context, index) {
-                  final entity = products[index];
-                  final item = ProductItem.fromEntity(entity);
-                  return _buildProductCardFromItem(item, entity);
-                },
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(25),
         ),
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            children: [
-              Icon(Icons.search, color: Colors.grey),
-              SizedBox(width: 8),
-              Text(
-                'Buscar',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
+        const SizedBox(height: 8),
+        // Search bar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.search, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text('Buscar')),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.filter_list),
+                  ),
+                ],
               ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Promo banner
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Container(
+            height: 120,
+            decoration: BoxDecoration(
+              color: Colors.purple.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Promociona tu emprendimiento',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text('Agrega una promoción y llega a más clientes'),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4B2AAD),
+                    ),
+                    child: const Text('Agregar'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Popular entrepreneurs (horizontal)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text(
+                'Emprendimientos populares',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text('Ver todo', style: TextStyle(color: Colors.blue)),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCategories() {
-    return SizedBox(
-      height: 45,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          final selected = _selectedCategory == cat;
-
-          return Padding(
-            padding: EdgeInsets.only(
-              left: index == 0 ? 16.0 : 8.0,
-              right: index == categories.length - 1 ? 16.0 : 0,
-            ),
-            child: GestureDetector(
-              onTap: () {
-                setState(() => _selectedCategory = cat);
-                if (cat == 'Todos') {
-                  context.read<ProductCubit>().loadProducts();
-                } else {
-                  context.read<ProductCubit>().filterByCategory(cat);
-                }
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 10,
-                ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 140,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            itemCount: products.length >= 6 ? 6 : products.length,
+            itemBuilder: (context, index) {
+              final p = products[index];
+              return Container(
+                width: 220,
+                margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
-                  color: selected ? Colors.blue : Colors.grey[300],
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 6,
+                    ),
+                  ],
                 ),
-                child: Text(
-                  cat,
-                  style: TextStyle(
-                    color: selected ? Colors.white : Colors.black,
-                    fontWeight: FontWeight.w500,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          p.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Categories title and selector
+
+        // Título Descuentos
+        const Padding(
+          padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+          child: Text(
+            'Descuentos',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+
+        // Categorías horizontal
+        SizedBox(
+          height: 40,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final cat = categories[index];
+              final selected = _selectedCategory == cat;
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: index == 0 ? 16.0 : 8.0,
+                  right: index == categories.length - 1 ? 16.0 : 0,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() => _selectedCategory = cat);
+                    if (cat == 'Todos') {
+                      context.read<ProductCubit>().loadProducts();
+                    } else {
+                      context.read<ProductCubit>().filterByCategory(cat);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: selected ? Colors.blue : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      cat,
+                      style: TextStyle(
+                        color: selected ? Colors.white : Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+
+        // Grid de productos
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GridView.builder(
+              itemCount: products.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.75,
               ),
+              itemBuilder: (context, index) {
+                final entity = products[index];
+                final item = ProductItem.fromEntity(entity);
+                return _buildProductCardFromItem(item, entity);
+              },
             ),
-          );
-        },
-      ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -448,9 +589,9 @@ class _HomePageState extends State<HomePage> {
   Widget _buildOrdersPage() {
     return const OrdersPage();
   }
-  
+
   Widget _buildFavoritesPage() {
-      return const FavoritesPage();
+    return const FavoritesPage();
   }
 
   Widget _buildBottomNavigationBar() {
@@ -460,7 +601,11 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
-            BoxShadow(color: const Color.fromRGBO(0, 0, 0, 0.08), blurRadius: 20, offset: const Offset(0, 8)),
+            BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
           ],
         ),
         child: BottomNavCustom(

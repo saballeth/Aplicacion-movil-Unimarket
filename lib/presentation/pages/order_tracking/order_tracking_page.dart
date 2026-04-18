@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../viewmodels/order_tracking/order_tracking_viewmodel.dart';
-import '../../widgets/bottom_nav_custom.dart';
 import '../order_confirmation/order_confirmation_page.dart';
 
 class OrderTrackingPage extends StatefulWidget {
@@ -34,28 +33,6 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: _buildBody(),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: BottomNavCustom(
-          selectedIndex: 2,
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                Navigator.of(context).pushReplacementNamed('/');
-                break;
-              case 1:
-                Navigator.of(context).pushReplacementNamed('/promos');
-                break;
-              case 3:
-                break;
-              case 4:
-                Navigator.of(context).pushReplacementNamed('/favorites');
-                break;
-            }
-          },
-          onCartTap: () => Navigator.of(context).pushNamed('/cart'),
-        ),
-      ),
     );
   }
 
