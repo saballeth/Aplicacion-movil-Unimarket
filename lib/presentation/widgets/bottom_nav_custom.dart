@@ -17,13 +17,13 @@ class BottomNavCustom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 80,
+      height: 90,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
           // Purple bar
           Container(
-            height: 60,
+            height: 70,
             decoration: const BoxDecoration(
               color: Color(0xFF4B2AAD),
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -33,7 +33,7 @@ class BottomNavCustom extends StatelessWidget {
               children: [
                 _item(context, Icons.home_outlined, 'Inicio', 0),
                 _item(context, Icons.local_offer_outlined, 'Promos', 1),
-                const SizedBox(width: 40), // space for center button
+                const SizedBox(width: 50), // space for center button
                 _item(context, Icons.inventory_2_outlined, 'Pedidos', 3),
                 _item(context, Icons.favorite_border, 'Favoritos', 4),
               ],
@@ -48,13 +48,13 @@ class BottomNavCustom extends StatelessWidget {
                 if (onCartTap != null) onCartTap!();
               },
               child: Container(
-                height: 64,
-                width: 64,
+                height: 72,
+                width: 72,
                 decoration: const BoxDecoration(
                   color: Color(0xFFF5C542),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 30),
+                child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 36),
               ),
             ),
           ),
@@ -70,15 +70,16 @@ class BottomNavCustom extends StatelessWidget {
       onTap: () => onTap?.call(index),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: isActive ? const Color(0xFFF5C542) : Colors.white, size: 24),
-          const SizedBox(height: 4),
+          Icon(icon, color: isActive ? const Color(0xFFF5C542) : Colors.white, size: 28),
+          const SizedBox(height: 6),
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               color: isActive ? const Color(0xFFF5C542) : Colors.white,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

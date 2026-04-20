@@ -11,11 +11,6 @@ class LoginCubit extends Cubit<LoginState> {
       emit(LoginFailure('Por favor completa todos los campos'));
       return;
     }
-    if (!email.contains('@')) {
-      emit(LoginFailure('Correo inválido'));
-      return;
-    }
-    // Aquí iría la lógica real (caso de uso / repositorio)
     emit(LoginSuccess());
   }
 }

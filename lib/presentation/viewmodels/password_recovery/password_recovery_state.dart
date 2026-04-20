@@ -4,6 +4,13 @@ class PasswordRecoveryInitial extends PasswordRecoveryState {}
 
 class PasswordRecoveryLoading extends PasswordRecoveryState {}
 
+class PasswordRecoveryCodeSent extends PasswordRecoveryState {
+  final String email;
+  PasswordRecoveryCodeSent(this.email);
+}
+
+class PasswordRecoveryCodeVerified extends PasswordRecoveryState {}
+
 class PasswordRecoverySuccess extends PasswordRecoveryState {
   final String email;
   PasswordRecoverySuccess(this.email);

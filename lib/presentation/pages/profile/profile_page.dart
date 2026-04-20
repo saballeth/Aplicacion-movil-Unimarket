@@ -59,12 +59,6 @@ class _ProfileView extends StatelessWidget {
       backgroundColor: Colors.white,
       elevation: 0,
       foregroundColor: Colors.black,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.settings_outlined, color: Color(0xFF4B2AAD)),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 

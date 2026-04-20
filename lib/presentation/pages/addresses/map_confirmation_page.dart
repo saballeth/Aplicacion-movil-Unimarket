@@ -133,7 +133,7 @@ class _MapConfirmationPageState extends State<MapConfirmationPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFF5A623), width: 2),
+              borderSide: const BorderSide(color: Color(0xFF4B2AAD), width: 2),
             ),
             filled: true,
             fillColor: Colors.white,
@@ -174,7 +174,7 @@ class _MapConfirmationPageState extends State<MapConfirmationPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFF5A623), width: 2),
+              borderSide: const BorderSide(color: Color(0xFF4B2AAD), width: 2),
             ),
             filled: true,
             fillColor: Colors.white,
@@ -216,7 +216,7 @@ class _MapConfirmationPageState extends State<MapConfirmationPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFF5A623), width: 2),
+              borderSide: const BorderSide(color: Color(0xFF4B2AAD), width: 2),
             ),
             filled: true,
             fillColor: Colors.white,
@@ -249,7 +249,7 @@ class _MapConfirmationPageState extends State<MapConfirmationPage> {
           Navigator.pop(context, vm.mainAddress);
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFF5A623),
+          backgroundColor: const Color(0xFF4B2AAD),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

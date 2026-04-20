@@ -6,11 +6,11 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// Mock: in a real app validate against backend.
   /// For testing, only accept the explicit test account below.
-  /// Test credentials: probar@unimarket.test / password123
+  /// Test credentials: 1234 / 1234
   Future<void> login(String email, String password) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    const testEmail = 'probar@unimarket.test';
-    const testPassword = 'password123';
+    const testEmail = '1234';
+    const testPassword = '1234';
 
     if (email == testEmail && password == testPassword) {
       emit(Authenticated(AuthUser(email: email, role: 'standard')));

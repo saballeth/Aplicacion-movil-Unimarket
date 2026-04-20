@@ -79,7 +79,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: vm.isDeliverySelected ? const Color(0xFFF5A623) : Colors.grey.shade200,
+                  color: vm.isDeliverySelected ? const Color(0xFF4B2AAD) : Colors.grey.shade200,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(12),
                     bottomLeft: Radius.circular(12),
@@ -105,7 +105,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: !vm.isDeliverySelected ? const Color(0xFFF5A623) : Colors.grey.shade200,
+                  color: !vm.isDeliverySelected ? const Color(0xFF4B2AAD) : Colors.grey.shade200,
                   borderRadius: const BorderRadius.only(
                     topRight: Radius.circular(12),
                     bottomRight: Radius.circular(12),
@@ -288,10 +288,10 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               width: 20,
               height: 20,
               decoration: BoxDecoration(
-                color: step.isCompleted ? const Color(0xFFF5A623) : Colors.grey.shade300,
+                color: step.isCompleted ? const Color(0xFF4B2AAD) : Colors.grey.shade300,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: step.isActive ? const Color(0xFFF5A623) : Colors.transparent,
+                  color: step.isActive ? const Color(0xFF4B2AAD) : Colors.transparent,
                   width: 2,
                 ),
               ),
@@ -302,7 +302,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               Container(
                 width: 2,
                 height: 40,
-                color: step.isCompleted ? const Color(0xFFF5A623) : Colors.grey.shade300,
+                color: step.isCompleted ? const Color(0xFF4B2AAD) : Colors.grey.shade300,
               ),
           ],
         ),
@@ -353,7 +353,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFF5A623),
+            backgroundColor: const Color(0xFF4B2AAD),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -378,7 +378,7 @@ class RoutePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFF5A623)
+      ..color = const Color(0xFF4B2AAD)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -390,7 +390,7 @@ class RoutePainter extends CustomPainter {
 
     canvas.drawPath(path, paint);
 
-    final dotPaint = Paint()..color = const Color(0xFFF5A623)..style = PaintingStyle.fill;
+    final dotPaint = Paint()..color = const Color(0xFF4B2AAD)..style = PaintingStyle.fill;
 
     canvas.drawCircle(const Offset(20, 5), 4, dotPaint);
     canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.4), 4, dotPaint);

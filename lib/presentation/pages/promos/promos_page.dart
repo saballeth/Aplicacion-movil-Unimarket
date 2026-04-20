@@ -178,7 +178,7 @@ class _PromosPageState extends State<PromosPage> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFFF5A623)
+                              ? const Color(0xFF4B2AAD)
                               : Colors.grey.shade200,
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -345,7 +345,7 @@ class _PromosPageState extends State<PromosPage> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF5A623),
+                        backgroundColor: const Color(0xFF4B2AAD),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(
@@ -490,7 +490,7 @@ class _PromosPageState extends State<PromosPage> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF5A623),
+                        backgroundColor: const Color(0xFF4B2AAD),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(

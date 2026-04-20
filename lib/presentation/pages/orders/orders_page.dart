@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/constants/app_colors.dart';
 import 'package:unimarket/presentation/pages/order_detail/order_detail_page.dart';
+import 'package:unimarket/presentation/pages/product_review/product_review_page.dart';
 import '../../viewmodels/orders/orders_cubit.dart';
 import '../../viewmodels/orders/orders_state.dart';
 import '../../models/order_model.dart';
@@ -152,6 +153,8 @@ class _OrdersPageState extends State<OrdersPage> {
   }
 
   Widget _buildOrderCard(OrderModel o) {
+  final isDelivered = o.status.toLowerCase() == "entregado";
+  
   return GestureDetector(
     onTap: () {
       Navigator.push(
@@ -175,50 +178,84 @@ class _OrdersPageState extends State<OrdersPage> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          /// Avatar
-          CircleAvatar(
-            radius: 28,
-            backgroundColor: AppColors.primary.withOpacity(0.1),
-            child: Icon(
-              o.icon,
-              size: 24,
-              color: AppColors.primary,
-            ),
+          Row(
+            children: [
+              /// Avatar
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: AppColors.primary.withOpacity(0.1),
+                child: Icon(
+                  o.icon,
+                  size: 24,
+                  color: AppColors.primary,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              /// Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      o.storeName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "${o.status} - ${o.date}",
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              /// Flecha
+              const Icon(
+                Icons.chevron_right,
+                color: Colors.grey,
+              ),
+            ],
           ),
-
-          const SizedBox(width: 16),
-
-          /// Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  o.storeName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
+          
+          /// Botón de Calificar (solo si está entregado)
+          if (isDelivered)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductReviewPage(
+                          productId: o.id,
+                          productName: o.storeName,
+                          sellerName: o.storeName,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.star_outline, size: 18),
+                  label: const Text('Calificar'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber.shade100,
+                    foregroundColor: Colors.amber.shade800,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  "${o.status} - ${o.date}",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-
-          /// Flecha
-          const Icon(
-            Icons.chevron_right,
-            color: Colors.grey,
-          ),
         ],
       ),
     ),

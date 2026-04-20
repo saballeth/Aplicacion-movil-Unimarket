@@ -47,4 +47,18 @@ class ProductCubit extends Cubit<ProductState> {
       emit(ProductLoaded(sorted));
     }
   }
+
+  void searchProducts(String query) {
+    if (state is ProductLoaded) {
+      final originalState = state as ProductLoaded;
+      final queryLower = query.toLowerCase();
+      final filtered = originalState.products
+          .where((product) =>
+              product.name.toLowerCase().contains(queryLower) ||
+              product.description.toLowerCase().contains(queryLower) ||
+              product.category.toLowerCase().contains(queryLower))
+          .toList();
+      emit(ProductLoaded(filtered));
+    }
+  }
 }

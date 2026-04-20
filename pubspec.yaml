@@ -31,6 +31,11 @@ dependencies:
   dartz: ^0.10.1
   lottie: ^2.2.0
 
+  # Mapas y Ubicación
+  google_maps_flutter: ^2.5.0
+  geolocator: ^9.0.2
+  google_places_flutter: ^2.0.8
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

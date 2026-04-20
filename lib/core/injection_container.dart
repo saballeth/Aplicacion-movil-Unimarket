@@ -20,6 +20,8 @@ import '../presentation/viewmodels/auth/auth_cubit.dart';
 import '../presentation/viewmodels/product_detail/product_detail_cubit.dart';
 import '../presentation/viewmodels/orders/orders_cubit.dart';
 import '../presentation/viewmodels/profile/profile_cubit.dart';
+import '../presentation/viewmodels/payment/payment_cubit.dart';
+import '../presentation/viewmodels/review/review_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -53,6 +55,8 @@ Future<void> init() async {
   sl.registerFactory(() => RegistrationCubit());
   sl.registerFactory(() => LoginCubit());
   sl.registerFactory(() => PasswordRecoveryCubit());
+  sl.registerFactory(() => PaymentCubit());
+  sl.registerFactory(() => ReviewCubit());
   sl.registerFactory(() => OrdersCubit());
   sl.registerFactory(() => ProfileCubit());
   // AuthCubit should be singleton so auth state persists across app

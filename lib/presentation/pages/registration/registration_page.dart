@@ -13,6 +13,7 @@ class RegistrationPage extends StatefulWidget {
 class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
@@ -23,7 +24,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -66,6 +67,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   const Text('Correo Institucional', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
                   const SizedBox(height: 8),
                   _buildInput(_emailController, 'name@unimagdalena.edu.co', keyboardType: TextInputType.emailAddress),
+                  const SizedBox(height: 24),
+
+                  const Text('Teléfono', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                  const SizedBox(height: 8),
+                  _buildInput(_phoneController, '3001234567', keyboardType: TextInputType.phone),
                   const SizedBox(height: 24),
 
                   const Text('Contraseña', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
@@ -116,9 +122,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     child: ElevatedButton(
                       onPressed: _acceptTerms && !isLoading ? () {
                         context.read<RegistrationCubit>().register(
-                              _nameController.text,
-                              _emailController.text,
-                              _passwordController.text,
+                              name: _nameController.text,
+                              email: _emailController.text,
+                              phone: _phoneController.text,
+                              password: _passwordController.text,
+                              confirmPassword: _confirmPasswordController.text,
+                              acceptTerms: _acceptTerms,
                             );
                       } : null,
                       style: ElevatedButton.styleFrom(
@@ -176,6 +185,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();

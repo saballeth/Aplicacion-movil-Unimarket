@@ -112,10 +112,32 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${widget.product.name} fue agregado al carrito'),
+                            duration: const Duration(seconds: 2),
+                            action: SnackBarAction(
+                              label: 'Deshacer',
+                              onPressed: () {},
+                            ),
+                          ),
+                        );
                         Navigator.pop(context);
                       },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF5A623), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14)),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4B2AAD), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14)),
                       child: const Text('Comprar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Productos relacionados
+                  const Text('Productos Relacionados', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 140,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: _getRelatedProducts(),
                     ),
                   ),
                 ],
@@ -125,6 +147,64 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         ),
       ),
     );
+  }
+
+  List<Widget> _getRelatedProducts() {
+    final relatedProducts = [
+      {'name': 'Producto Similar 1', 'price': 29.99, 'category': widget.product.category},
+      {'name': 'Producto Similar 2', 'price': 39.99, 'category': widget.product.category},
+      {'name': 'Producto Similar 3', 'price': 34.99, 'category': widget.product.category},
+      {'name': 'Producto Similar 4', 'price': 44.99, 'category': widget.product.category},
+    ];
+
+    return relatedProducts.map((product) {
+      return Container(
+        width: 130,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.purple.shade50,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              ),
+              child: Center(
+                child: Icon(
+                  _getProductIcon(product['category'] as String),
+                  size: 40,
+                  color: Colors.purple.shade300,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product['name'] as String,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '\$${product['price']}',
+                    style: TextStyle(fontSize: 11, color: Colors.purple.shade700, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
   }
 
   IconData _getProductIcon(String category) {

@@ -101,7 +101,7 @@ class _AddressesPageState extends State<AddressesPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isSelected ? const Color(0xFFF5A623) : Colors.grey.shade300,
+          color: isSelected ? const Color(0xFF4B2AAD) : Colors.grey.shade300,
           width: isSelected ? 2 : 1,
         ),
         boxShadow: [
@@ -127,7 +127,7 @@ class _AddressesPageState extends State<AddressesPage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isSelected ? const Color(0xFFF5A623) : Colors.grey.shade400,
+                      color: isSelected ? const Color(0xFF4B2AAD) : Colors.grey.shade400,
                       width: 2,
                     ),
                   ),
@@ -138,7 +138,7 @@ class _AddressesPageState extends State<AddressesPage> {
                             height: 12,
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Color(0xFFF5A623),
+                              color: Color(0xFF4B2AAD),
                             ),
                           ),
                         )
@@ -177,7 +177,7 @@ class _AddressesPageState extends State<AddressesPage> {
                             'Predeterminada',
                             style: TextStyle(
                               fontSize: 12,
-                              color: const Color(0xFFF5A623),
+                              color: const Color(0xFF4B2AAD),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -205,7 +205,7 @@ class _AddressesPageState extends State<AddressesPage> {
   Widget _buildFloatingActionButton() {
     return FloatingActionButton(
       onPressed: _addNewAddress,
-      backgroundColor: const Color(0xFFF5A623),
+      backgroundColor: const Color(0xFF4B2AAD),
       elevation: 4,
       child: const Icon(
         Icons.add,

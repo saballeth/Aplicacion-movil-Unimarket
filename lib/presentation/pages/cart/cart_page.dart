@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:unimarket/presentation/pages/order_tracking/order_tracking_page.dart';
+import 'package:unimarket/presentation/pages/addresses/address_selection_page.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -252,7 +252,7 @@ class _CartPageState extends State<CartPage> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => const OrderTrackingPage(),
+                          builder: (_) => AddressSelectionPage(totalAmount: totalPrice),
                         ),
                       );
                     },

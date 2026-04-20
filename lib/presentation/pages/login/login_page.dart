@@ -7,9 +7,9 @@ import '../../viewmodels/auth/auth_cubit.dart';
 import '../../viewmodels/product/product_cubit.dart';
 import '../home_page.dart';
 import 'package:unimarket/core/injection_container.dart';
-import 'package:unimarket/presentation/pages/password_recovery/password_recovery_page.dart';
 import '../../viewmodels/registration/registration_cubit.dart';
 import 'package:unimarket/presentation/pages/registration/registration_page.dart';
+import 'package:unimarket/presentation/pages/password_recovery/password_recovery_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
@@ -38,9 +38,9 @@ class _LoginPageState extends State<LoginPage> {
                 ).showSnackBar(SnackBar(content: Text(state.message)));
               }
               if (state is LoginSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Inicio de sesión exitoso')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('¡Bienvenido!')));
                 // Attempt to authenticate via AuthCubit (mocked test credentials)
                 await sl<AuthCubit>().login(
                   _emailController.text.trim(),
@@ -59,9 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text(
-                        'Credenciales inválidas. Usa probar@unimarket.test / password123',
-                      ),
+                      content: Text('Credenciales inválidas. Usa 1234 / 1234'),
                     ),
                   );
                 }
@@ -84,11 +82,11 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 60),
 
                   _buildInputField(
-                    label: 'Correo Institucional',
-                    hintText: 'ejemplo@unimagdalena.edu.co',
+                    label: 'Usuario',
+                    hintText: '1234',
                     controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icons.email_outlined,
+                    keyboardType: TextInputType.text,
+                    prefixIcon: Icons.person_outline,
                   ),
                   const SizedBox(height: 24),
                   _buildInputField(
@@ -133,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12.0),
                     child: Text(
-                      'Credenciales de prueba: probar@unimarket.test / password123',
+                      'Credenciales de prueba: Usuario 1234 / Contraseña 1234',
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       textAlign: TextAlign.center,
                     ),
@@ -199,8 +197,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 40),
-                  _buildSocialLoginButtons(),
                   const SizedBox(height: 40),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -283,80 +279,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildSocialLoginButtons() {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: _loginWithGoogle,
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              side: BorderSide(color: Colors.grey[300]!, width: 1),
-              backgroundColor: Colors.white,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/google_icon.png',
-                  width: 24,
-                  height: 24,
-                  errorBuilder: (context, error, stackTrace) => Icon(
-                    Icons.g_translate,
-                    color: Colors.grey[700],
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Continuar con Google',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[800],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: _loginWithApple,
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              side: BorderSide(color: Colors.grey[300]!, width: 1),
-              backgroundColor: Colors.white,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.apple, color: Colors.grey, size: 24),
-                const SizedBox(width: 12),
-                Text(
-                  'Continuar con Apple',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[800],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+
 
   // removed unused _loginUser; login uses LoginCubit directly
 
@@ -384,13 +307,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _loginWithGoogle() {
-    _showSnackBar('Iniciando sesión con Google...');
-  }
 
-  void _loginWithApple() {
-    _showSnackBar('Iniciando sesión con Apple...');
-  }
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(

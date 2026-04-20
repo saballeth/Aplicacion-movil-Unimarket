@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:unimarket/presentation/pages/search/search_page.dart';
 import 'package:unimarket/core/injection_container.dart';
 import 'package:unimarket/domain/entities/product_entity.dart';
 import 'package:unimarket/presentation/pages/login/login_page.dart';
@@ -36,6 +37,14 @@ class _HomePageState extends State<HomePage> {
   int _pendingOrders = 0;
   late final ProfileCubit _profileCubit;
   String _userName = '';
+  
+  // Filter variables
+  double _minPrice = 0;
+  double _maxPrice = 500;
+  double _selectedMinPrice = 0;
+  double _selectedMaxPrice = 500;
+  bool _onlyDiscounted = false;
+  double _minRating = 0;
 
   @override
   void initState() {
@@ -121,16 +130,6 @@ class _HomePageState extends State<HomePage> {
         // original leading/actions removed in favor of custom bell/profile
       ),
       body: _buildCurrentPage(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFF5A623),
-        child: const Icon(Icons.shopping_cart),
-        onPressed: () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const CartPage()));
-        },
-      ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -226,9 +225,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductGrid(List<ProductEntity> products) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -241,24 +241,32 @@ class _HomePageState extends State<HomePage> {
         // Search bar
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(25),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  const Icon(Icons.search, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text('Buscar')),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.filter_list),
-                  ),
-                ],
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SearchPage()),
+              );
+            },
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.search, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    const Expanded(child: Text('Buscar productos...')),
+                    IconButton(
+                      onPressed: _showFiltersBottomSheet,
+                      icon: const Icon(Icons.filter_list),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -375,6 +383,93 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 16),
         // Categories title and selector
 
+        // Comidas destacables
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text(
+                'Comidas destacables',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text('Ver todo', style: TextStyle(color: Colors.blue)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 140,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            itemCount: products.where((p) => p.category.toLowerCase().contains('comida')).length.clamp(0, 6),
+            itemBuilder: (context, index) {
+              final p = products.where((p) => p.category.toLowerCase().contains('comida')).toList()[index];
+              return _buildCategoryProductCard(p);
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Ropa destacable
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text(
+                'Ropa destacable',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text('Ver todo', style: TextStyle(color: Colors.blue)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 140,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            itemCount: products.where((p) => p.category.toLowerCase().contains('ropa')).length.clamp(0, 6),
+            itemBuilder: (context, index) {
+              final p = products.where((p) => p.category.toLowerCase().contains('ropa')).toList()[index];
+              return _buildCategoryProductCard(p);
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Accesorios destacables
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text(
+                'Accesorios destacables',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text('Ver todo', style: TextStyle(color: Colors.blue)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 140,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            itemCount: products.where((p) => p.category.toLowerCase().contains('accesorio')).length.clamp(0, 6),
+            itemBuilder: (context, index) {
+              final p = products.where((p) => p.category.toLowerCase().contains('accesorio')).toList()[index];
+              return _buildCategoryProductCard(p);
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+
         // Título Descuentos
         const Padding(
           padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
@@ -431,26 +526,73 @@ class _HomePageState extends State<HomePage> {
         ),
 
         // Grid de productos
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GridView.builder(
-              itemCount: products.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.75,
-              ),
-              itemBuilder: (context, index) {
-                final entity = products[index];
-                final item = ProductItem.fromEntity(entity);
-                return _buildProductCardFromItem(item, entity);
-              },
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: products.length > 8 ? 8 : products.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.75,
             ),
+            itemBuilder: (context, index) {
+              final entity = products[index];
+              final item = ProductItem.fromEntity(entity);
+              return _buildProductCardFromItem(item, entity);
+            },
           ),
         ),
+        const SizedBox(height: 20),
       ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryProductCard(ProductEntity product) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => ProductDetailPage(product: product)),
+      ),
+      child: Container(
+        width: 180,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6)],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 80,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
+                ),
+              ),
+              child: const Icon(Icons.shopping_bag, size: 40, color: Colors.grey),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(product.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Text('\$${product.price}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue[800])),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -619,5 +761,156 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCartPage() {
     return const CartPage();
+  }
+
+  void _showFiltersBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Filtros',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Price Range Filter
+                    const Text(
+                      'Rango de Precio',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    RangeSlider(
+                      values: RangeValues(_selectedMinPrice, _selectedMaxPrice),
+                      min: 0,
+                      max: 500,
+                      divisions: 50,
+                      labels: RangeLabels(
+                        '\$${_selectedMinPrice.toStringAsFixed(0)}',
+                        '\$${_selectedMaxPrice.toStringAsFixed(0)}',
+                      ),
+                      onChanged: (RangeValues values) {
+                        setModalState(() {
+                          _selectedMinPrice = values.start;
+                          _selectedMaxPrice = values.end;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Only Discounted
+                    CheckboxListTile(
+                      title: const Text('Solo con descuento'),
+                      value: _onlyDiscounted,
+                      activeColor: const Color(0xFF4B2AAD),
+                      onChanged: (value) {
+                        setModalState(() {
+                          _onlyDiscounted = value ?? false;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Rating Filter
+                    const Text(
+                      'Calificación Mínima',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Slider(
+                            value: _minRating,
+                            min: 0,
+                            max: 5,
+                            divisions: 5,
+                            label: _minRating.toStringAsFixed(1),
+                            activeColor: Colors.amber,
+                            onChanged: (value) {
+                              setModalState(() {
+                                _minRating = value;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Row(
+                          children: [
+                            Icon(Icons.star, color: Colors.amber, size: 18),
+                            const SizedBox(width: 4),
+                            Text(_minRating.toStringAsFixed(1)),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+
+                    // Buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setModalState(() {
+                                _selectedMinPrice = 0;
+                                _selectedMaxPrice = 500;
+                                _onlyDiscounted = false;
+                                _minRating = 0;
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[300],
+                              foregroundColor: Colors.black,
+                            ),
+                            child: const Text('Limpiar'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                // Apply filters
+                              });
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4B2AAD),
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Aplicar'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

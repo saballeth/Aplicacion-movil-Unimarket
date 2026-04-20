@@ -85,7 +85,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
         child: InkWell(
           onTap: _openMapSelection,
           borderRadius: BorderRadius.circular(12),
-          child: Padding(padding: const EdgeInsets.all(16), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [Icon(Icons.map_outlined, color: Color(0xFFF5A623), size: 24), SizedBox(width: 12), Text('Seleccionar en el mapa', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFFF5A623)))])),
+          child: Padding(padding: const EdgeInsets.all(16), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [Icon(Icons.map_outlined, color: Color(0xFF4B2AAD), size: 24), SizedBox(width: 12), Text('Seleccionar en el mapa', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF4B2AAD)))])),
         ),
       ),
     );
@@ -97,7 +97,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
       const SizedBox(height: 8),
       TextFormField(
         controller: _addressController,
-        decoration: InputDecoration(hintText: 'Ingresa tu dirección', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF5A623), width: 2)), filled: true, fillColor: Colors.white, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14), suffixIcon: IconButton(onPressed: _useCurrentLocation, icon: const Icon(Icons.my_location_outlined, color: Color(0xFFF5A623)))),
+        decoration: InputDecoration(hintText: 'Ingresa tu dirección', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF4B2AAD), width: 2)), filled: true, fillColor: Colors.white, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14), suffixIcon: IconButton(onPressed: _useCurrentLocation, icon: const Icon(Icons.my_location_outlined, color: Color(0xFF4B2AAD)))),
         style: const TextStyle(fontSize: 16, color: Colors.black87),
         validator: (value) => (value == null || value.isEmpty) ? 'Por favor ingresa una dirección' : null,
       ),
@@ -110,7 +110,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
       const SizedBox(height: 4),
       Text('N° de apto, oficina o casa', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
       const SizedBox(height: 8),
-      TextFormField(controller: _detailsController, decoration: InputDecoration(hintText: 'Ej: Apartamento 301, Oficina 4B', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF5A623), width: 2)), filled: true, fillColor: Colors.white, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))),
+      TextFormField(controller: _detailsController, decoration: InputDecoration(hintText: 'Ej: Apartamento 301, Oficina 4B', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF4B2AAD), width: 2)), filled: true, fillColor: Colors.white, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))),
     ]);
   }
 
@@ -120,12 +120,12 @@ class _AddAddressPageState extends State<AddAddressPage> {
       const SizedBox(height: 4),
       Text('Instrucciones adicionales (opcional)', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
       const SizedBox(height: 8),
-      TextFormField(controller: _descriptionController, maxLines: 3, decoration: InputDecoration(hintText: 'Ej: Portón negro, llamar al timbre 3B, dejar con conserjería', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF5A623), width: 2)), filled: true, fillColor: Colors.white, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))),
+      TextFormField(controller: _descriptionController, maxLines: 3, decoration: InputDecoration(hintText: 'Ej: Portón negro, llamar al timbre 3B, dejar con conserjería', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade400)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF4B2AAD), width: 2)), filled: true, fillColor: Colors.white, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))),
     ]);
   }
 
   Widget _buildSaveButton() {
-    return SizedBox(width: double.infinity, height: 56, child: ElevatedButton(onPressed: _saveAddress, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF5A623), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 2), child: const Text('Guardar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600))));
+    return SizedBox(width: double.infinity, height: 56, child: ElevatedButton(onPressed: _saveAddress, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4B2AAD), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 2), child: const Text('Guardar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600))));
   }
 
   void _openMapSelection() {
@@ -150,7 +150,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
               _addressController.text = 'Carrera 78 #28 B - 52 (Ubicación actual)';
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF5A623)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4B2AAD)),
             child: const Text('Usar ubicación'),
           ),
         ],

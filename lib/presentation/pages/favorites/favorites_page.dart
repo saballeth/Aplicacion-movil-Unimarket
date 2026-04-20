@@ -154,7 +154,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 item.isFood ? Icons.restaurant : Icons.shopping_bag,
                 size: 40,
                 color: item.isFood
-                    ? const Color(0xFFF5A623)
+                    ? const Color(0xFF4B2AAD)
                     : Colors.blue,
               ),
             ),
@@ -210,7 +210,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                   ? Icons.star
                                   : Icons.star_border,
                               size: 16,
-                              color: const Color(0xFFF5A623),
+                              color: const Color(0xFF4B2AAD),
                             ),
                           ),
                         ),

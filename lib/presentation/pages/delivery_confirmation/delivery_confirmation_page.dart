@@ -93,7 +93,7 @@ class _DeliveryConfirmationPageState extends State<DeliveryConfirmationPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                  color: vm.isDeliverySelected ? const Color(0xFFF5A623) : Colors.transparent,
+                  color: vm.isDeliverySelected ? const Color(0xFF4B2AAD) : Colors.transparent,
                   borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
                 ),
                 child: Column(
@@ -114,7 +114,7 @@ class _DeliveryConfirmationPageState extends State<DeliveryConfirmationPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                  color: !vm.isDeliverySelected ? const Color(0xFFF5A623) : Colors.transparent,
+                  color: !vm.isDeliverySelected ? const Color(0xFF4B2AAD) : Colors.transparent,
                   borderRadius: const BorderRadius.only(topRight: Radius.circular(12), bottomRight: Radius.circular(12)),
                 ),
                 child: Column(
@@ -170,7 +170,7 @@ class _DeliveryConfirmationPageState extends State<DeliveryConfirmationPage> {
   Widget _buildProductItem() {
     final p = vm.products.first;
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Container(width: 80, height: 80, decoration: BoxDecoration(color: const Color.fromRGBO(245,166,35,0.1), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.local_pizza, color: Color(0xFFF5A623), size: 40)),
+      Container(width: 80, height: 80, decoration: BoxDecoration(color: const Color.fromRGBO(245,166,35,0.1), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.local_pizza, color: Color(0xFF4B2AAD), size: 40)),
       const SizedBox(width: 16),
       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(p.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
@@ -229,14 +229,14 @@ class _DeliveryConfirmationPageState extends State<DeliveryConfirmationPage> {
       const Text('Dirección de entrega', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
       const SizedBox(height: 16),
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Icon(Icons.location_on_outlined, color: Color(0xFFF5A623), size: 24),
+        const Icon(Icons.location_on_outlined, color: Color(0xFF4B2AAD), size: 24),
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(vm.addressTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)),
           const SizedBox(height: 4),
           Text(vm.addressSubtitle, style: const TextStyle(fontSize: 14, color: Colors.grey)),
           const SizedBox(height: 16),
-          ElevatedButton(onPressed: () {}, style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade100, foregroundColor: const Color(0xFFF5A623), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: Colors.grey.shade300)), elevation: 0), child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.edit, size: 16), SizedBox(width: 8), Text('Editar Dirección')]))
+          ElevatedButton(onPressed: () {}, style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade100, foregroundColor: const Color(0xFF4B2AAD), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: Colors.grey.shade300)), elevation: 0), child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.edit, size: 16), SizedBox(width: 8), Text('Editar Dirección')]))
         ]))
       ])
     ]));
@@ -251,7 +251,7 @@ class _DeliveryConfirmationPageState extends State<DeliveryConfirmationPage> {
           vm.confirmOrder();
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AddressesPage()));
         },
-        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF5A623), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 2),
+        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4B2AAD), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 2),
         child: const Text('Confirmar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
       ),
     );
