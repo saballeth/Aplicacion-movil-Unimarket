@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:unimarket/core/injection_container.dart';
 import '../../viewmodels/order_tracking/order_tracking_viewmodel.dart';
+import 'package:unimarket/presentation/viewmodels/profile/order_preferences_controller.dart';
 import '../order_confirmation/order_confirmation_page.dart';
 
 class OrderTrackingPage extends StatefulWidget {
@@ -11,17 +13,27 @@ class OrderTrackingPage extends StatefulWidget {
 
 class _OrderTrackingPageState extends State<OrderTrackingPage> {
   final OrderTrackingViewModel vm = OrderTrackingViewModel();
+  late final OrderPreferencesController _prefs;
 
   @override
   void initState() {
     super.initState();
+    _prefs = sl<OrderPreferencesController>();
+    _prefs.addListener(_onPrefsChanged);
     vm.addListener(_onVmChanged);
   }
 
   void _onVmChanged() => setState(() {});
 
+  void _onPrefsChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void dispose() {
+    _prefs.removeListener(_onPrefsChanged);
     vm.removeListener(_onVmChanged);
     vm.dispose();
     super.dispose();
@@ -60,10 +72,38 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
     return Column(
       children: [
         _buildDeliveryOptions(),
+        if (_prefs.notifyEstimatedArrival) _buildEtaBanner(),
         Expanded(child: _buildMapPlaceholder()),
         _buildOrderStatus(),
         _buildConfirmButton(),
       ],
+    );
+  }
+
+  Widget _buildEtaBanner() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF4B2AAD).withOpacity(0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF4B2AAD).withOpacity(0.15)),
+        ),
+        child: Row(
+          children: const [
+            Icon(Icons.schedule_outlined, color: Color(0xFF4B2AAD)),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Recibirás estimaciones de llegada mientras el pedido esté en seguimiento.',
+                style: TextStyle(fontSize: 13, height: 1.3),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

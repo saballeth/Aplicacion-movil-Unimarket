@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/constants/app_colors.dart';
+import 'package:unimarket/core/injection_container.dart';
 import 'package:unimarket/presentation/pages/order_detail/order_detail_page.dart';
 import 'package:unimarket/presentation/pages/product_review/product_review_page.dart';
+import 'package:unimarket/presentation/viewmodels/profile/order_preferences_controller.dart';
 import '../../viewmodels/orders/orders_cubit.dart';
 import '../../viewmodels/orders/orders_state.dart';
 import '../../models/order_model.dart';
@@ -18,6 +20,26 @@ class OrdersPage extends StatefulWidget {
 
 class _OrdersPageState extends State<OrdersPage> {
   String selectedFilter = "Entregados";
+  late final OrderPreferencesController _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _prefs = sl<OrderPreferencesController>();
+    _prefs.addListener(_onPrefsChanged);
+  }
+
+  void _onPrefsChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _prefs.removeListener(_onPrefsChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +64,21 @@ class _OrdersPageState extends State<OrdersPage> {
               final orders = state.orders;
 
               final filteredOrders = orders.where((o) {
-                if (selectedFilter == "Entregados") {
-                  return o.status.toLowerCase() == "entregado";
-                } else {
-                  return o.status.toLowerCase() == "pendiente";
+                final isDelivered = o.status.toLowerCase() == "entregado";
+                if (!_prefs.showOldOrders && isDelivered) {
+                  return false;
                 }
+
+                if (selectedFilter == "Entregados") {
+                  return isDelivered;
+                }
+
+                return o.status.toLowerCase() == "pendiente";
               }).toList();
+
+              final visibleOrders = _prefs.groupByStore
+                  ? _groupOrdersByStore(filteredOrders)
+                  : null;
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,6 +104,11 @@ class _OrdersPageState extends State<OrdersPage> {
                     child: _buildFilters(),
                   ),
 
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                    child: _buildOrderPreferenceSummary(),
+                  ),
+
                   const SizedBox(height: 20),
 
                   /// 🔥 LISTA
@@ -84,14 +120,28 @@ class _OrdersPageState extends State<OrdersPage> {
                               style: TextStyle(color: Colors.grey),
                             ),
                           )
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            itemCount: filteredOrders.length,
-                            itemBuilder: (context, index) {
-                              return _buildOrderCard(
-                                  filteredOrders[index]);
-                            },
-                          ),
+                        : _prefs.groupByStore
+                            ? ListView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                itemCount: visibleOrders!.length,
+                                itemBuilder: (context, index) {
+                                  final section = visibleOrders[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: _buildStoreSection(
+                                      section.key,
+                                      section.orders,
+                                    ),
+                                  );
+                                },
+                              )
+                            : ListView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                itemCount: filteredOrders.length,
+                                itemBuilder: (context, index) {
+                                  return _buildOrderCard(filteredOrders[index]);
+                                },
+                              ),
                   ),
                 ],
               );
@@ -149,6 +199,116 @@ class _OrdersPageState extends State<OrdersPage> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildOrderPreferenceSummary() {
+    final chips = <Widget>[
+      _buildSummaryChip(
+        _prefs.showOldOrders ? 'Historial visible' : 'Historial oculto',
+        _prefs.showOldOrders ? Colors.green.shade700 : Colors.orange.shade700,
+      ),
+      const SizedBox(width: 8),
+      _buildSummaryChip(
+        _prefs.groupByStore ? 'Agrupado por tienda' : 'Lista simple',
+        Colors.indigo.shade700,
+      ),
+      const SizedBox(width: 8),
+      _buildSummaryChip(
+        _prefs.notifyEstimatedArrival ? 'ETA activa' : 'ETA apagada',
+        _prefs.notifyEstimatedArrival ? Colors.green.shade700 : Colors.grey.shade700,
+      ),
+    ];
+
+    return Wrap(
+      runSpacing: 8,
+      children: chips,
+    );
+  }
+
+  Widget _buildSummaryChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  List<_StoreOrdersSection> _groupOrdersByStore(List<OrderModel> orders) {
+    final grouped = <String, List<OrderModel>>{};
+    for (final order in orders) {
+      grouped.putIfAbsent(order.storeName, () => []).add(order);
+    }
+
+    return grouped.entries
+        .map((entry) => _StoreOrdersSection(entry.key, entry.value))
+        .toList();
+  }
+
+  Widget _buildStoreSection(String storeName, List<OrderModel> orders) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.storefront_outlined, color: AppColors.primary),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    storeName,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${orders.length} pedido${orders.length == 1 ? '' : 's'}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...orders.map((order) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildOrderCard(order),
+              );
+            }),
+          ],
+        ),
+      ),
     );
   }
 
@@ -262,4 +422,11 @@ class _OrdersPageState extends State<OrdersPage> {
   );
 }
 
+}
+
+class _StoreOrdersSection {
+  final String key;
+  final List<OrderModel> orders;
+
+  _StoreOrdersSection(this.key, this.orders);
 }

@@ -296,7 +296,7 @@ class _MapAddressPageState extends State<MapAddressPage> {
             onPressed: () {
               vm.select('');
             },
-            style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+            style: TextButton.styleFrom(minimumSize: const Size(80, 36)),
             child: const Text('Cambiar', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF4B2AAD))),
           ),
         ],

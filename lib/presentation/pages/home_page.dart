@@ -18,6 +18,7 @@ import 'package:unimarket/presentation/viewmodels/profile/profile_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/profile/profile_state.dart';
 import 'package:unimarket/presentation/viewmodels/login/login_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/product/product_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/profile/app_preferences_controller.dart';
 import '../viewmodels/addresses/addresses_viewmodel.dart';
 import 'package:unimarket/presentation/viewmodels/product/product_item.dart';
 
@@ -33,14 +34,13 @@ class _HomePageState extends State<HomePage> {
   String _selectedCategory = 'Todos';
   final List<String> categories = ['Todos', 'Ropa', 'Comida', 'Accesorio'];
   final AddressesViewModel _addrVm = sl<AddressesViewModel>();
+  late final AppPreferencesController _prefs;
   late final OrdersCubit _ordersCubit;
   int _pendingOrders = 0;
   late final ProfileCubit _profileCubit;
   String _userName = '';
   
   // Filter variables
-  double _minPrice = 0;
-  double _maxPrice = 500;
   double _selectedMinPrice = 0;
   double _selectedMaxPrice = 500;
   bool _onlyDiscounted = false;
@@ -49,6 +49,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _prefs = sl<AppPreferencesController>();
+    _prefs.addListener(_onPrefsChanged);
     _addrVm.addListener(_onAddressChanged);
     _ordersCubit = OrdersCubit()..loadOrders();
     _ordersCubit.stream.listen((s) {
@@ -85,6 +87,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onAddressChanged() => setState(() {});
+
+  void _onPrefsChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,6 +144,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _prefs.removeListener(_onPrefsChanged);
     _addrVm.removeListener(_onAddressChanged);
     super.dispose();
   }
@@ -210,7 +219,7 @@ class _HomePageState extends State<HomePage> {
         }
 
         if (state is ProductLoaded) {
-          final products = state.products;
+          final products = _applyPreferencesToProducts(state.products);
           return _buildProductGrid(products);
         }
 
@@ -752,11 +761,48 @@ class _HomePageState extends State<HomePage> {
         ),
         child: BottomNavCustom(
           selectedIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
+          onTap: (index) {
+            setState(() => _currentIndex = index);
+            if (index == 0 && _prefs.autoPlay) {
+              context.read<ProductCubit>().loadProducts();
+            }
+          },
           onCartTap: () => setState(() => _currentIndex = 2),
         ),
       ),
     );
+  }
+
+  List<ProductEntity> _applyPreferencesToProducts(List<ProductEntity> products) {
+    if (!_prefs.personalizedRecommendations || _prefs.searchHistory.isEmpty) {
+      return products;
+    }
+
+    final history = _prefs.searchHistory.map((value) => value.toLowerCase()).toList();
+    final sorted = List<ProductEntity>.from(products);
+    sorted.sort((left, right) {
+      final leftScore = _productScore(left, history);
+      final rightScore = _productScore(right, history);
+      return rightScore.compareTo(leftScore);
+    });
+    return sorted;
+  }
+
+  int _productScore(ProductEntity product, List<String> history) {
+    final searchable = '${product.name} ${product.category} ${product.description}'.toLowerCase();
+    var score = 0;
+    for (final term in history) {
+      if (searchable.contains(term)) {
+        score += 3;
+      }
+      if (product.category.toLowerCase().contains(term)) {
+        score += 2;
+      }
+      if (product.name.toLowerCase().contains(term)) {
+        score += 1;
+      }
+    }
+    return score;
   }
 
   Widget _buildCartPage() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/core/injection_container.dart';
+import 'package:unimarket/presentation/viewmodels/profile/privacy_security_controller.dart';
 import '../../viewmodels/profile/profile_cubit.dart';
 import 'edit_profile_page.dart';
 import 'ajustes_page.dart';
@@ -86,41 +87,79 @@ class _ProfileView extends StatelessWidget {
   }
 
   Widget _buildUserInfo(BuildContext context, String name, String email) {
-    return Row(
-      children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: const Color.fromRGBO(75, 42, 173, 0.12),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.person, size: 40, color: Color(0xFF4B2AAD)),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+    final privacy = sl<PrivacySecurityController>();
+    return AnimatedBuilder(
+      animation: privacy,
+      builder: (context, _) {
+        return Row(
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(75, 42, 173, 0.12),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 4),
-              Text(
-                email,
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              child: const Icon(Icons.person, size: 40, color: Color(0xFF4B2AAD)),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    email,
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildStatusChip(
+                        privacy.publicProfile ? 'Perfil público' : 'Perfil privado',
+                        privacy.publicProfile ? Colors.green.shade600 : Colors.grey.shade700,
+                      ),
+                      _buildStatusChip(
+                        privacy.twoFactorAuthentication ? '2FA activa' : '2FA inactiva',
+                        privacy.twoFactorAuthentication ? Colors.green.shade600 : Colors.orange.shade700,
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-            ],
-          ),
+            ),
+            // edit action removed (profile edited via menu item)
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildStatusChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
-        // edit action removed (profile edited via menu item)
-      ],
+      ),
     );
   }
 

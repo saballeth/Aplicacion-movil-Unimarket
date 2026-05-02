@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/constants/app_colors.dart';
-import 'package:unimarket/presentation/viewmodels/product/product_cubit.dart';
 import 'package:unimarket/core/injection_container.dart';
+import 'package:unimarket/presentation/viewmodels/profile/app_preferences_controller.dart';
+import 'package:unimarket/presentation/viewmodels/product/product_cubit.dart';
 import 'package:unimarket/presentation/pages/product_detail/product_detail_page.dart';
 
 class SearchPage extends StatefulWidget {
@@ -15,15 +16,25 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   late ProductCubit _productCubit;
+  late final AppPreferencesController _prefs;
 
   @override
   void initState() {
     super.initState();
     _productCubit = sl<ProductCubit>();
+    _prefs = sl<AppPreferencesController>();
+    _prefs.addListener(_onPrefsChanged);
+  }
+
+  void _onPrefsChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
   void dispose() {
+    _prefs.removeListener(_onPrefsChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -36,6 +47,11 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
+  void _onSearchSubmitted(String query) {
+    _prefs.recordSearch(query);
+    _onSearchChanged(query);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,6 +61,8 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             // Barra de búsqueda mejorada
             _buildSearchBar(),
+            if (_prefs.keepSearchHistory)
+              _buildRecentSearches(),
             const SizedBox(height: 16),
 
             // Resultados
@@ -259,7 +277,11 @@ class _SearchPageState extends State<SearchPage> {
           Expanded(
             child: TextField(
               controller: _searchController,
-              onChanged: _onSearchChanged,
+              onChanged: (query) {
+                setState(() {});
+                _onSearchChanged(query);
+              },
+              onSubmitted: _onSearchSubmitted,
               autofocus: true,
               decoration: InputDecoration(
                 hintText: 'Buscar productos...',
@@ -291,6 +313,65 @@ class _SearchPageState extends State<SearchPage> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentSearches() {
+    if (_prefs.searchHistory.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Text(
+          'Tus búsquedas recientes aparecerán aquí cuando uses la barra y mantengas activado el historial.',
+          style: TextStyle(color: Colors.grey.shade600, fontSize: 13, height: 1.35),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Búsquedas recientes',
+                style: TextStyle(
+                  color: Colors.grey.shade800,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              TextButton(
+                onPressed: _prefs.clearSearchHistory,
+                child: const Text('Limpiar'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _prefs.searchHistory.map((term) {
+              return ActionChip(
+                label: Text(term),
+                onPressed: () {
+                  _searchController.text = term;
+                  _searchController.selection = TextSelection.fromPosition(
+                    TextPosition(offset: term.length),
+                  );
+                  setState(() {});
+                  _onSearchChanged(term);
+                  _prefs.recordSearch(term);
+                },
+                backgroundColor: Colors.white,
+                side: BorderSide(color: Colors.grey.shade300),
+              );
+            }).toList(),
           ),
         ],
       ),

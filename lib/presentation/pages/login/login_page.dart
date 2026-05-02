@@ -112,9 +112,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: TextButton(
                       onPressed: _navigateToPasswordRecovery,
                       style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        minimumSize: const Size(88, 44),
                       ),
                       child: Text(
                         'Olvidaste tu contraseña?',

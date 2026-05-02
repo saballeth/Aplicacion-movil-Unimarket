@@ -161,8 +161,8 @@ class _CartPageState extends State<CartPage> {
                                           ),
                                           onPressed: () =>
                                               _decreaseQuantity(index),
-                                          padding: const EdgeInsets.all(4),
-                                          constraints: const BoxConstraints(),
+                                          padding: const EdgeInsets.all(8),
+                                          constraints: const BoxConstraints(minHeight: 40, minWidth: 40),
                                         ),
                                         Text(
                                           '${item.quantity}',
@@ -175,8 +175,8 @@ class _CartPageState extends State<CartPage> {
                                           icon: const Icon(Icons.add, size: 18),
                                           onPressed: () =>
                                               _increaseQuantity(index),
-                                          padding: const EdgeInsets.all(4),
-                                          constraints: const BoxConstraints(),
+                                          padding: const EdgeInsets.all(8),
+                                          constraints: const BoxConstraints(minHeight: 40, minWidth: 40),
                                         ),
                                       ],
                                     ),

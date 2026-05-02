@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:unimarket/core/injection_container.dart';
+import 'package:unimarket/presentation/viewmodels/profile/app_preferences_controller.dart';
+
 class AppPreferencesPage extends StatefulWidget {
   const AppPreferencesPage({super.key});
 
@@ -8,12 +11,26 @@ class AppPreferencesPage extends StatefulWidget {
 }
 
 class _AppPreferencesPageState extends State<AppPreferencesPage> {
-  bool modoOscuro = false;
-  bool autoPlay = true;
-  bool mantenerHistorial = true;
-  bool recomendaciones = true;
-  String idioma = 'Español';
-  String tamanoTexto = 'Normal';
+  late final AppPreferencesController prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    prefs = sl<AppPreferencesController>();
+    prefs.addListener(_onPrefsChanged);
+  }
+
+  void _onPrefsChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    prefs.removeListener(_onPrefsChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +38,7 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
       appBar: AppBar(
         leading: const BackButton(),
         title: const Text(
-          'Preferencias de la App',
+          'Preferencias',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,
@@ -34,39 +51,39 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
         children: [
           SwitchListTile(
             title: const Text('Modo oscuro'),
-            subtitle: const Text('Activa el tema oscuro'),
-            value: modoOscuro,
-            onChanged: (val) => setState(() => modoOscuro = val),
+            subtitle: const Text('Activa el tema oscuro de la aplicación'),
+            value: prefs.darkMode,
+            onChanged: (val) => prefs.toggleDarkMode(val),
             activeThumbColor: const Color(0xFF4B2AAD),
           ),
           const Divider(),
           SwitchListTile(
             title: const Text('Reproducción automática'),
-            subtitle: const Text('Reproducir videos de forma automática'),
-            value: autoPlay,
-            onChanged: (val) => setState(() => autoPlay = val),
+            subtitle: const Text('Recarga el catálogo automáticamente al volver a Inicio'),
+            value: prefs.autoPlay,
+            onChanged: (val) => prefs.toggleAutoPlay(val),
             activeThumbColor: const Color(0xFF4B2AAD),
           ),
           const Divider(),
           SwitchListTile(
             title: const Text('Mantener historial de búsqueda'),
             subtitle: const Text('Guarda tus búsquedas anteriores'),
-            value: mantenerHistorial,
-            onChanged: (val) => setState(() => mantenerHistorial = val),
+            value: prefs.keepSearchHistory,
+            onChanged: (val) => prefs.toggleKeepSearchHistory(val),
             activeThumbColor: const Color(0xFF4B2AAD),
           ),
           const Divider(),
           SwitchListTile(
             title: const Text('Recomendaciones personalizadas'),
             subtitle: const Text('Recibe sugerencias basadas en tus gustos'),
-            value: recomendaciones,
-            onChanged: (val) => setState(() => recomendaciones = val),
+            value: prefs.personalizedRecommendations,
+            onChanged: (val) => prefs.togglePersonalizedRecommendations(val),
             activeThumbColor: const Color(0xFF4B2AAD),
           ),
           const Divider(),
           ListTile(
             title: const Text('Tamaño de texto'),
-            subtitle: Text(tamanoTexto),
+            subtitle: Text(prefs.textSize),
             trailing: const Icon(Icons.chevron_right, color: Colors.grey),
             onTap: () {
               showDialog(
@@ -79,9 +96,9 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
                       return RadioListTile(
                         title: Text(tam),
                         value: tam,
-                        groupValue: tamanoTexto,
+                        groupValue: prefs.textSize,
                         onChanged: (val) {
-                          setState(() => tamanoTexto = val!);
+                          prefs.setTextSize(val!);
                           Navigator.pop(ctx);
                         },
                       );
@@ -94,7 +111,7 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
           const Divider(),
           ListTile(
             title: const Text('Idioma'),
-            subtitle: Text(idioma),
+            subtitle: Text(prefs.languageLabel),
             trailing: const Icon(Icons.chevron_right, color: Colors.grey),
             onTap: () {
               showDialog(
@@ -104,12 +121,17 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: ['Español', 'English', 'Português'].map((lang) {
+                      final value = switch (lang) {
+                        'English' => 'en',
+                        'Português' => 'pt',
+                        _ => 'es',
+                      };
                       return RadioListTile(
                         title: Text(lang),
-                        value: lang,
-                        groupValue: idioma,
+                        value: value,
+                        groupValue: prefs.languageCode,
                         onChanged: (val) {
-                          setState(() => idioma = val!);
+                          prefs.setLanguage(val!);
                           Navigator.pop(ctx);
                         },
                       );

@@ -17,7 +17,7 @@ class BottomNavCustom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 90,
+      height: 100,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [

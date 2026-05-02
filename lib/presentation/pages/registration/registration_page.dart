@@ -50,8 +50,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   IconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.arrow_back, color: Colors.black),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
                   ),
                   const SizedBox(height: 20),
                   const Text('Regístrate', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
