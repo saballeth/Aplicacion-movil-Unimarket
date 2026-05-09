@@ -34,6 +34,8 @@ class _AjustesPageState extends State<AjustesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
@@ -41,24 +43,24 @@ class _AjustesPageState extends State<AjustesPage> {
           'Ajustes',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: isDarkMode ? const Color(0xFF1B1B1B) : Colors.white,
+        foregroundColor: isDarkMode ? Colors.white : Colors.black,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildMenuItem(context, 'Notificaciones', Icons.notifications_none),
+              _buildMenuItem(context, 'Notificaciones', Icons.notifications_none, isDarkMode),
               const SizedBox(height: 12),
-              _buildMenuItem(context, 'Preferencias de pedidos', Icons.receipt_long),
+              _buildMenuItem(context, 'Preferencias de pedidos', Icons.receipt_long, isDarkMode),
               const SizedBox(height: 12),
-              _buildMenuItem(context, 'Privacidad y Seguridad', Icons.lock_outline),
+              _buildMenuItem(context, 'Privacidad y Seguridad', Icons.lock_outline, isDarkMode),
               const SizedBox(height: 12),
-              _buildMenuItem(context, 'Preferencias de la app', Icons.settings),
+              _buildMenuItem(context, 'Preferencias de la app', Icons.settings, isDarkMode),
             ],
           ),
         ),
@@ -66,12 +68,14 @@ class _AjustesPageState extends State<AjustesPage> {
     );
   }
 
-  Widget _buildMenuItem(BuildContext context, String title, IconData icon) {
+  Widget _buildMenuItem(BuildContext context, String title, IconData icon, bool isDarkMode) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade200,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -87,15 +91,19 @@ class _AjustesPageState extends State<AjustesPage> {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+                      color: isDarkMode ? Colors.white : Colors.black87,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.chevron_right, color: Colors.grey, size: 24),
+                Icon(
+                  Icons.chevron_right,
+                  color: isDarkMode ? Colors.grey.shade600 : Colors.grey,
+                  size: 24,
+                ),
               ],
             ),
           ),

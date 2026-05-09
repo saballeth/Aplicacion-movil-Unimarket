@@ -116,15 +116,6 @@ class MyApp extends StatelessWidget {
               GlobalCupertinoLocalizations.delegate,
             ],
             debugShowCheckedModeBanner: false,
-            builder: (context, child) {
-              final mediaQuery = MediaQuery.of(context);
-              return MediaQuery(
-                data: mediaQuery.copyWith(
-                  textScaler: TextScaler.linear(appPreferences.textScaleFactor),
-                ),
-                child: child ?? const SizedBox.shrink(),
-              );
-            },
             home: _buildHomeScreen(),
           );
         },

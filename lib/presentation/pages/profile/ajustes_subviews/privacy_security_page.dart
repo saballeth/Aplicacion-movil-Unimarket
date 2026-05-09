@@ -35,10 +35,12 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F3FF),
+      backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF6F3FF),
       appBar: AppBar(
-        leading: const BackButton(color: Colors.white),
+        leading: BackButton(color: isDarkMode ? Colors.white : Colors.white),
         title: const Text(
           'Privacidad y Seguridad',
           style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
@@ -54,11 +56,12 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildHeaderCard(),
+          _buildHeaderCard(isDarkMode),
           const SizedBox(height: 16),
           _buildSectionTitle(
             'Visibilidad',
             'Controla qué información puede verse desde tu cuenta.',
+            isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -75,6 +78,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     : 'Tu perfil quedó restringido.',
               );
             },
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -91,11 +95,13 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     : 'La ubicación quedó oculta en la cuenta.',
               );
             },
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 20),
           _buildSectionTitle(
             'Contacto y seguridad',
             'Define cómo pueden escribirte y el nivel de protección de tu cuenta.',
+            isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -112,6 +118,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     : 'El contacto quedó deshabilitado.',
               );
             },
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -124,9 +131,18 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (dialogContext) => AlertDialog(
-                    title: const Text('Activar verificación en dos pasos'),
-                    content: const Text(
+                    backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                    title: Text(
+                      'Activar verificación en dos pasos',
+                      style: TextStyle(
+                        color: isDarkMode ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    content: Text(
                       'Esta opción agregará una capa extra de seguridad a tu cuenta. En esta versión se guarda la preferencia y se simula el flujo de activación.',
+                      style: TextStyle(
+                        color: isDarkMode ? Colors.grey[300] : Colors.black,
+                      ),
                     ),
                     actions: [
                       TextButton(
@@ -154,15 +170,16 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     : 'La verificación en dos pasos fue desactivada.',
               );
             },
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 20),
-          _buildInfoCard(),
+          _buildInfoCard(isDarkMode),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderCard() {
+  Widget _buildHeaderCard(bool isDarkMode) {
     final statusText = prefs.publicProfile
         ? 'Perfil visible para otros usuarios.'
         : 'Perfil privado y más restringido.';
@@ -224,16 +241,16 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     );
   }
 
-  Widget _buildSectionTitle(String title, String subtitle) {
+  Widget _buildSectionTitle(String title, String subtitle, bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white : Colors.black87,
           ),
         ),
         const SizedBox(height: 4),
@@ -241,7 +258,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
           subtitle,
           style: TextStyle(
             fontSize: 13,
-            color: Colors.grey.shade600,
+            color: isDarkMode ? Colors.grey[400] : Colors.grey.shade600,
             height: 1.35,
           ),
         ),
@@ -255,15 +272,18 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     required String subtitle,
     required bool value,
     required ValueChanged<bool> onChanged,
+    required bool isDarkMode,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade200,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -275,17 +295,17 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withOpacity(isDarkMode ? 0.2 : 0.1),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Icon(icon, color: AppColors.primary, size: 24),
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white : Colors.black87,
           ),
         ),
         subtitle: Padding(
@@ -294,7 +314,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
             subtitle,
             style: TextStyle(
               fontSize: 13,
-              color: Colors.grey.shade600,
+              color: isDarkMode ? Colors.grey[400] : Colors.grey.shade600,
               height: 1.3,
             ),
           ),
@@ -307,13 +327,15 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.lightPanel,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : AppColors.lightPanel,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withOpacity(0.08)),
+        border: Border.all(
+          color: AppColors.primary.withOpacity(isDarkMode ? 0.12 : 0.08),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,9 +344,9 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Estas opciones se guardan en el dispositivo y modifican la forma en que la app muestra tu información y protege tu cuenta.',
+              'Puedes volver a esta pantalla cuando quieras para adaptar las notificaciones a tu rutina de compra.',
               style: TextStyle(
-                color: Colors.grey.shade800,
+                color: isDarkMode ? Colors.grey[300] : Colors.grey.shade800,
                 height: 1.35,
                 fontSize: 13,
               ),

@@ -35,10 +35,12 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F3FF),
+      backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF6F3FF),
       appBar: AppBar(
-        leading: const BackButton(color: Colors.white),
+        leading: BackButton(color: isDarkMode ? Colors.white : Colors.white),
         title: const Text(
           'Preferencias de Pedidos',
           style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
@@ -54,11 +56,11 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildHeaderCard(),
           const SizedBox(height: 16),
           _buildSectionTitle(
             'Historial',
             'Controla qué pedidos se muestran y cómo se organizan.',
+            isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -75,6 +77,7 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
                     : 'Se ocultaron los pedidos antiguos en la vista.',
               );
             },
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -91,11 +94,13 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
                     : 'Los pedidos volverán a mostrarse en una sola lista.',
               );
             },
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 20),
           _buildSectionTitle(
             'Seguimiento',
             'Recibe información útil mientras un pedido está en camino.',
+            isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -112,83 +117,25 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
                     : 'Se ocultarán los avisos de tiempo estimado.',
               );
             },
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 20),
-          _buildInfoCard(),
+          _buildInfoCard(isDarkMode),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: AppColors.purpleGradient,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.22),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const Icon(
-              Icons.receipt_long_outlined,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tus pedidos, más claros',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  'Ajusta cómo ves el historial y qué alertas recibes durante el seguimiento.',
-                  style: TextStyle(
-                    color: Colors.white,
-                    height: 1.35,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, String subtitle) {
+  Widget _buildSectionTitle(String title, String subtitle, bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white : Colors.black87,
           ),
         ),
         const SizedBox(height: 4),
@@ -196,7 +143,7 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
           subtitle,
           style: TextStyle(
             fontSize: 13,
-            color: Colors.grey.shade600,
+            color: isDarkMode ? Colors.grey[400] : Colors.grey.shade600,
             height: 1.35,
           ),
         ),
@@ -210,15 +157,18 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
     required String subtitle,
     required bool value,
     required ValueChanged<bool> onChanged,
+    required bool isDarkMode,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade200,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -230,17 +180,17 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withOpacity(isDarkMode ? 0.2 : 0.1),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Icon(icon, color: AppColors.primary, size: 24),
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white : Colors.black87,
           ),
         ),
         subtitle: Padding(
@@ -249,7 +199,7 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
             subtitle,
             style: TextStyle(
               fontSize: 13,
-              color: Colors.grey.shade600,
+              color: isDarkMode ? Colors.grey[400] : Colors.grey.shade600,
               height: 1.3,
             ),
           ),
@@ -262,24 +212,26 @@ class _OrderPreferencesPageState extends State<OrderPreferencesPage> {
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.lightPanel,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : AppColors.lightPanel,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withOpacity(0.08)),
+        border: Border.all(
+          color: AppColors.primary.withOpacity(isDarkMode ? 0.12 : 0.08),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, color: AppColors.primary, size: 22),
+          Icon(Icons.info_outline, color: AppColors.primary, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               'Estas opciones se guardan en el dispositivo y se aplican en la vista de pedidos y seguimiento.',
               style: TextStyle(
-                color: Colors.grey.shade800,
+                color: isDarkMode ? Colors.grey[300] : Colors.grey.shade800,
                 height: 1.35,
                 fontSize: 13,
               ),

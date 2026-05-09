@@ -22,36 +22,50 @@ import '../presentation/viewmodels/orders/orders_cubit.dart';
 import '../presentation/viewmodels/profile/profile_cubit.dart';
 import '../presentation/viewmodels/payment/payment_cubit.dart';
 import '../presentation/viewmodels/review/review_cubit.dart';
+import '../presentation/viewmodels/cart/cart_cubit.dart';
+import '../presentation/viewmodels/favorites/favorites_cubit.dart';
+import '../presentation/viewmodels/addresses/addresses_cubit.dart';
+import '../presentation/viewmodels/payment/payment_methods_cubit.dart';
+import '../presentation/viewmodels/entrepreneur/bank_data_cubit.dart';
+import '../presentation/viewmodels/entrepreneur/documents_cubit.dart';
+import '../presentation/viewmodels/admin/admin_users_cubit.dart';
+import '../presentation/viewmodels/admin/admin_businesses_products_cubit.dart';
+import '../presentation/viewmodels/admin/reports_cubit.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
   //! External
-  final sharedPreferences = await SharedPreferences.getInstance();  // Agregar esta línea
-  sl.registerLazySingleton(() => sharedPreferences);  // Agregar esta línea
-  
-  sl.registerLazySingleton(() => Dio(BaseOptions(
-    baseUrl: AppConstants.apiBaseUrl,
-    connectTimeout: const Duration(milliseconds: AppConstants.apiTimeout),
-  )));
-  
+  final sharedPreferences =
+      await SharedPreferences.getInstance(); // Agregar esta línea
+  sl.registerLazySingleton(() => sharedPreferences); // Agregar esta línea
+
+  sl.registerLazySingleton(
+    () => Dio(
+      BaseOptions(
+        baseUrl: AppConstants.apiBaseUrl,
+        connectTimeout: const Duration(milliseconds: AppConstants.apiTimeout),
+      ),
+    ),
+  );
+
   //! Data Sources
   sl.registerLazySingleton<ProductRemoteDataSource>(
     () => ProductRemoteDataSourceImpl(),
   );
-  
+
   //! Repository
   sl.registerLazySingleton<ProductRepository>(
     () => ProductRepositoryImpl(sl()),
   );
-  
+
   //! Use Cases
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
-  
+
   //! Bloc / Cubit
   sl.registerFactory(() => ProductCubit(sl()));
   sl.registerLazySingleton(() => AddressesViewModel());
-  sl.registerFactory(() => OnboardingCubit(sl()));  // Agregar esta línea
+  sl.registerFactory(() => OnboardingCubit(sl())); // Agregar esta línea
   sl.registerFactory(() => RegistrationCubit());
   sl.registerFactory(() => LoginCubit());
   sl.registerFactory(() => PasswordRecoveryCubit());
@@ -63,4 +77,23 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AuthCubit());
   sl.registerFactory(() => EmailConfirmationCubit());
   sl.registerFactory(() => ProductDetailCubit());
+  sl.registerFactory(() => CartCubit());
+  sl.registerFactory(() => FavoritesCubit());
+
+  //! New Feature Cubits
+  // Addresses Management
+  sl.registerFactory(() => AddressesCubit());
+
+  // Payment Methods
+  sl.registerFactory(() => PaymentMethodsCubit());
+
+  // Entrepreneur Features
+  sl.registerFactory(() => BankDataCubit());
+  sl.registerFactory(() => DocumentsCubit());
+
+  // Admin Features
+  sl.registerFactory(() => AdminUsersCubit());
+  sl.registerFactory(() => AdminBusinessesCubit());
+  sl.registerFactory(() => AdminProductsCubit());
+  sl.registerFactory(() => ReportsCubit());
 }

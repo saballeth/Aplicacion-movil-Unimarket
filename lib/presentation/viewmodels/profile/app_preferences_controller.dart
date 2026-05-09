@@ -8,7 +8,6 @@ class AppPreferencesController extends ChangeNotifier {
   static const String _kPersonalizedRecommendations =
       'app_pref_personalized_recommendations';
   static const String _kLanguage = 'app_pref_language';
-  static const String _kTextSize = 'app_pref_text_size';
   static const String _kSearchHistory = 'app_pref_search_history';
 
   final SharedPreferences preferences;
@@ -18,7 +17,6 @@ class AppPreferencesController extends ChangeNotifier {
   bool keepSearchHistory = true;
   bool personalizedRecommendations = true;
   String languageCode = 'es';
-  String textSize = 'Normal';
   final List<String> _searchHistory = [];
 
   AppPreferencesController(this.preferences);
@@ -26,20 +24,6 @@ class AppPreferencesController extends ChangeNotifier {
   ThemeMode get themeMode => darkMode ? ThemeMode.dark : ThemeMode.light;
 
   Locale get locale => Locale(languageCode);
-
-  double get textScaleFactor {
-    switch (textSize) {
-      case 'Pequeño':
-        return 0.92;
-      case 'Grande':
-        return 1.10;
-      case 'Muy grande':
-        return 1.20;
-      case 'Normal':
-      default:
-        return 1.0;
-    }
-  }
 
   String get languageLabel {
     switch (languageCode) {
@@ -64,7 +48,6 @@ class AppPreferencesController extends ChangeNotifier {
         preferences.getBool(_kPersonalizedRecommendations) ??
             personalizedRecommendations;
     languageCode = preferences.getString(_kLanguage) ?? languageCode;
-    textSize = preferences.getString(_kTextSize) ?? textSize;
     _searchHistory
       ..clear()
       ..addAll(preferences.getStringList(_kSearchHistory) ?? const []);
@@ -102,12 +85,6 @@ class AppPreferencesController extends ChangeNotifier {
   Future<void> setLanguage(String value) async {
     languageCode = value;
     await preferences.setString(_kLanguage, value);
-    notifyListeners();
-  }
-
-  Future<void> setTextSize(String value) async {
-    textSize = value;
-    await preferences.setString(_kTextSize, value);
     notifyListeners();
   }
 

@@ -3,11 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/presentation/pages/search/search_page.dart';
 import 'package:unimarket/core/injection_container.dart';
 import 'package:unimarket/domain/entities/product_entity.dart';
+import 'package:unimarket/domain/entities/user_role.dart';
 import 'package:unimarket/presentation/pages/login/login_page.dart';
 import 'package:unimarket/presentation/pages/orders/orders_page.dart';
 import 'package:unimarket/presentation/pages/product_detail/product_detail_page.dart';
 import 'package:unimarket/presentation/pages/profile/profile_page.dart';
 import 'package:unimarket/presentation/pages/promos/promos_page.dart';
+import 'package:unimarket/presentation/pages/dashboards/consumer_dashboard.dart';
+import 'package:unimarket/presentation/pages/dashboards/entrepreneur_dashboard.dart';
+import 'package:unimarket/presentation/pages/dashboards/admin_dashboard.dart';
 import '../widgets/bottom_nav_custom.dart';
 import 'package:unimarket/presentation/pages/cart/cart_page.dart';
 import 'package:unimarket/presentation/pages/favorites/favorites_page.dart';
@@ -21,6 +25,8 @@ import 'package:unimarket/presentation/viewmodels/product/product_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/profile/app_preferences_controller.dart';
 import '../viewmodels/addresses/addresses_viewmodel.dart';
 import 'package:unimarket/presentation/viewmodels/product/product_item.dart';
+import 'package:unimarket/presentation/viewmodels/cart/cart_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/favorites/favorites_cubit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -39,7 +45,7 @@ class _HomePageState extends State<HomePage> {
   int _pendingOrders = 0;
   late final ProfileCubit _profileCubit;
   String _userName = '';
-  
+
   // Filter variables
   double _selectedMinPrice = 0;
   double _selectedMaxPrice = 500;
@@ -96,36 +102,92 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<CartCubit>()),
+        BlocProvider(create: (_) => sl<FavoritesCubit>()),
+        BlocProvider(create: (_) => _profileCubit),
+      ],
+      child: _buildScaffold(),
+    );
+  }
+
+  Widget _buildScaffold() {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const OrdersPage())),
-          icon: Stack(
-            children: [
-              const Icon(Icons.notifications_none, color: Colors.black),
-              if (_pendingOrders > 0)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '$_pendingOrders',
-                      style: const TextStyle(color: Colors.white, fontSize: 10),
-                    ),
-                  ),
+        title: StreamBuilder<ProfileState>(
+          stream: _profileCubit.stream,
+          initialData: _profileCubit.state,
+          builder: (context, snapshot) {
+            if (snapshot.data is ProfileLoaded) {
+              final state = snapshot.data as ProfileLoaded;
+              final roleTitle = state.user.role.displayName;
+              return Text(
+                roleTitle,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-            ],
-          ),
+              );
+            }
+            return const Text(
+              'UNIMARKET',
+              style: TextStyle(color: Colors.black),
+            );
+          },
+        ),
+        leading: StreamBuilder<ProfileState>(
+          stream: _profileCubit.stream,
+          initialData: _profileCubit.state,
+          builder: (context, snapshot) {
+            if (snapshot.data is ProfileLoaded) {
+              final state = snapshot.data as ProfileLoaded;
+              // Admins see notifications icon only
+              if (state.user.role.isAdmin) {
+                return IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.notifications_none,
+                    color: Colors.black,
+                  ),
+                );
+              }
+            }
+            // Regular users see orders/notifications
+            return IconButton(
+              onPressed: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const OrdersPage())),
+              icon: Stack(
+                children: [
+                  const Icon(Icons.notifications_none, color: Colors.black),
+                  if (_pendingOrders > 0)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '$_pendingOrders',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
         ),
         actions: [
           IconButton(
@@ -138,7 +200,19 @@ class _HomePageState extends State<HomePage> {
         // original leading/actions removed in favor of custom bell/profile
       ),
       body: _buildCurrentPage(),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _buildConditionalBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildConditionalBottomNavigationBar() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        // Entrepreneur doesn't show bottom navigation bar
+        if (state is ProfileLoaded && state.user.role.isEntrepreneur) {
+          return const SizedBox.shrink();
+        }
+        return _buildBottomNavigationBar();
+      },
     );
   }
 
@@ -150,20 +224,52 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCurrentPage() {
-    switch (_currentIndex) {
-      case 0:
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        // Entrepreneur and Admin see their dashboards, not the page switcher
+        if (state is ProfileLoaded &&
+            (state.user.role.isAdmin || state.user.role.isEntrepreneur)) {
+          return _buildRoleBasedDashboard();
+        }
+
+        // Other roles see the normal page switcher
+        switch (_currentIndex) {
+          case 0:
+            return _buildRoleBasedDashboard();
+          case 1:
+            return _buildPromosPage();
+          case 2:
+            return _buildCartPage();
+          case 3:
+            return _buildOrdersPage();
+          case 4:
+            return _buildFavoritesPage();
+          default:
+            return _buildRoleBasedDashboard();
+        }
+      },
+    );
+  }
+
+  Widget _buildRoleBasedDashboard() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        if (state is ProfileLoaded) {
+          // Show appropriate dashboard based on user role
+          switch (state.user.role) {
+            case UserRole.admin:
+              return const AdminDashboard();
+            case UserRole.entrepreneur:
+              return const EntrepreneurDashboard();
+            case UserRole.consumer:
+              return const ConsumerDashboard();
+            default:
+              return const ConsumerDashboard();
+          }
+        }
         return _buildHomePage();
-      case 1:
-        return _buildPromosPage();
-      case 2:
-        return _buildCartPage();
-      case 3:
-        return _buildOrdersPage();
-      case 4:
-        return _buildFavoritesPage();
-      default:
-        return _buildHomePage();
-    }
+      },
+    );
   }
 
   Widget _buildHomePage() {
@@ -238,324 +344,341 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        const SizedBox(height: 12),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            'Hola. ${_userName.isNotEmpty ? _userName : ''}',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'Hola. ${_userName.isNotEmpty ? _userName : ''}',
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        // Search bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SearchPage()),
-              );
-            },
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    const Expanded(child: Text('Buscar productos...')),
-                    IconButton(
-                      onPressed: _showFiltersBottomSheet,
-                      icon: const Icon(Icons.filter_list),
-                    ),
-                  ],
+          const SizedBox(height: 8),
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SearchPage()),
+                );
+              },
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(25),
                 ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // Promo banner
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Container(
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.purple.shade50,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Promociona tu emprendimiento',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      const Expanded(child: Text('Buscar productos...')),
+                      IconButton(
+                        onPressed: _showFiltersBottomSheet,
+                        icon: const Icon(Icons.filter_list),
                       ),
-                      SizedBox(height: 8),
-                      Text('Agrega una promoción y llega a más clientes'),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4B2AAD),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Promo banner
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.purple.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'Promociona tu emprendimiento',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text('Agrega una promoción y llega a más clientes'),
+                      ],
                     ),
-                    child: const Text('Agregar'),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4B2AAD),
+                      ),
+                      child: const Text('Agregar'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Popular entrepreneurs (horizontal)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text(
+                  'Emprendimientos populares',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
+                Text('Ver todo', style: TextStyle(color: Colors.blue)),
               ],
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-
-        // Popular entrepreneurs (horizontal)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Emprendimientos populares',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text('Ver todo', style: TextStyle(color: Colors.blue)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 140,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            itemCount: products.length >= 6 ? 6 : products.length,
-            itemBuilder: (context, index) {
-              final p = products[index];
-              return Container(
-                width: 220,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 6,
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          p.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 140,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              itemCount: products.length >= 6 ? 6 : products.length,
+              itemBuilder: (context, index) {
+                final p = products[index];
+                return Container(
+                  width: 220,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 6,
                       ),
                     ],
                   ),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Categories title and selector
-
-        // Comidas destacables
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Comidas destacables',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text('Ver todo', style: TextStyle(color: Colors.blue)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 140,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            itemCount: products.where((p) => p.category.toLowerCase().contains('comida')).length.clamp(0, 6),
-            itemBuilder: (context, index) {
-              final p = products.where((p) => p.category.toLowerCase().contains('comida')).toList()[index];
-              return _buildCategoryProductCard(p);
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Ropa destacable
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Ropa destacable',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text('Ver todo', style: TextStyle(color: Colors.blue)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 140,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            itemCount: products.where((p) => p.category.toLowerCase().contains('ropa')).length.clamp(0, 6),
-            itemBuilder: (context, index) {
-              final p = products.where((p) => p.category.toLowerCase().contains('ropa')).toList()[index];
-              return _buildCategoryProductCard(p);
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Accesorios destacables
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Accesorios destacables',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text('Ver todo', style: TextStyle(color: Colors.blue)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 140,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            itemCount: products.where((p) => p.category.toLowerCase().contains('accesorio')).length.clamp(0, 6),
-            itemBuilder: (context, index) {
-              final p = products.where((p) => p.category.toLowerCase().contains('accesorio')).toList()[index];
-              return _buildCategoryProductCard(p);
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Título Descuentos
-        const Padding(
-          padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-          child: Text(
-            'Descuentos',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ),
-
-        // Categorías horizontal
-        SizedBox(
-          height: 40,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final cat = categories[index];
-              final selected = _selectedCategory == cat;
-              return Padding(
-                padding: EdgeInsets.only(
-                  left: index == 0 ? 16.0 : 8.0,
-                  right: index == categories.length - 1 ? 16.0 : 0,
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() => _selectedCategory = cat);
-                    if (cat == 'Todos') {
-                      context.read<ProductCubit>().loadProducts();
-                    } else {
-                      context.read<ProductCubit>().filterByCategory(cat);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            p.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
-                    decoration: BoxDecoration(
-                      color: selected ? Colors.blue : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      cat,
-                      style: TextStyle(
-                        color: selected ? Colors.white : Colors.black,
-                        fontWeight: FontWeight.w500,
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Categories title and selector
+
+          // Comidas destacables
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text(
+                  'Comidas destacables',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text('Ver todo', style: TextStyle(color: Colors.blue)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 140,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              itemCount: products
+                  .where((p) => p.category.toLowerCase().contains('comida'))
+                  .length
+                  .clamp(0, 6),
+              itemBuilder: (context, index) {
+                final p = products
+                    .where((p) => p.category.toLowerCase().contains('comida'))
+                    .toList()[index];
+                return _buildCategoryProductCard(p);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Ropa destacable
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text(
+                  'Ropa destacable',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text('Ver todo', style: TextStyle(color: Colors.blue)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 140,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              itemCount: products
+                  .where((p) => p.category.toLowerCase().contains('ropa'))
+                  .length
+                  .clamp(0, 6),
+              itemBuilder: (context, index) {
+                final p = products
+                    .where((p) => p.category.toLowerCase().contains('ropa'))
+                    .toList()[index];
+                return _buildCategoryProductCard(p);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Accesorios destacables
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text(
+                  'Accesorios destacables',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text('Ver todo', style: TextStyle(color: Colors.blue)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 140,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              itemCount: products
+                  .where((p) => p.category.toLowerCase().contains('accesorio'))
+                  .length
+                  .clamp(0, 6),
+              itemBuilder: (context, index) {
+                final p = products
+                    .where(
+                      (p) => p.category.toLowerCase().contains('accesorio'),
+                    )
+                    .toList()[index];
+                return _buildCategoryProductCard(p);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Título Descuentos
+          const Padding(
+            padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+            child: Text(
+              'Descuentos',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          // Categorías horizontal
+          SizedBox(
+            height: 40,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final cat = categories[index];
+                final selected = _selectedCategory == cat;
+                return Padding(
+                  padding: EdgeInsets.only(
+                    left: index == 0 ? 16.0 : 8.0,
+                    right: index == categories.length - 1 ? 16.0 : 0,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() => _selectedCategory = cat);
+                      if (cat == 'Todos') {
+                        context.read<ProductCubit>().loadProducts();
+                      } else {
+                        context.read<ProductCubit>().filterByCategory(cat);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: selected ? Colors.blue : Colors.grey[300],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        cat,
+                        style: TextStyle(
+                          color: selected ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
-        ),
-
-        // Grid de productos
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: products.length > 8 ? 8 : products.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 0.75,
+                );
+              },
             ),
-            itemBuilder: (context, index) {
-              final entity = products[index];
-              final item = ProductItem.fromEntity(entity);
-              return _buildProductCardFromItem(item, entity);
-            },
           ),
-        ),
-        const SizedBox(height: 20),
-      ],
+
+          // Grid de productos
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: products.length > 8 ? 8 : products.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.75,
+              ),
+              itemBuilder: (context, index) {
+                final entity = products[index];
+                final item = ProductItem.fromEntity(entity);
+                return _buildProductCardFromItem(item, entity);
+              },
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
@@ -571,7 +694,9 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6)],
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -586,16 +711,96 @@ class _HomePageState extends State<HomePage> {
                   topRight: Radius.circular(12),
                 ),
               ),
-              child: const Icon(Icons.shopping_bag, size: 40, color: Colors.grey),
+              child: const Icon(
+                Icons.shopping_bag,
+                size: 40,
+                color: Colors.grey,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(
+                    product.name,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 4),
-                  Text('\$${product.price}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue[800])),
+                  Text(
+                    '\$${product.price}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue[800],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: BlocBuilder<CartCubit, CartState>(
+                          builder: (context, state) {
+                            return ElevatedButton(
+                              onPressed: () {
+                                context.read<CartCubit>().addToCart(product);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      '${product.name} agregado al carrito',
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF4B2AAD),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 6,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Icon(Icons.shopping_cart, size: 14),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      BlocBuilder<FavoritesCubit, FavoritesState>(
+                        builder: (context, state) {
+                          final isFavorite = state is FavoritesLoaded
+                              ? state.isFavorite(product.id)
+                              : false;
+                          return IconButton(
+                            onPressed: () {
+                              context.read<FavoritesCubit>().toggleFavorite(
+                                product,
+                              );
+                            },
+                            icon: Icon(
+                              isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: isFavorite ? Colors.red : Colors.grey,
+                              size: 18,
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 32,
+                              minHeight: 32,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -705,21 +910,31 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // Navigate to payment methods page with product price
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${item.name} agregado al carrito'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[800],
+                        backgroundColor: const Color(0xFF4B2AAD),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 0,
+                        elevation: 4,
+                        shadowColor: const Color(0xFF4B2AAD).withOpacity(0.5),
                       ),
                       child: const Text(
                         'Comprar',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.3,
                         ),
                       ),
                     ),
@@ -746,39 +961,61 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: const Color.fromRGBO(0, 0, 0, 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, profileState) {
+        // Admin has no bottom navigation bar (or a simplified one)
+        if (profileState is ProfileLoaded && profileState.user.role.isAdmin) {
+          return const SizedBox.shrink();
+        }
+
+        // Regular users see the full navigation bar
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color.fromRGBO(0, 0, 0, 0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: BottomNavCustom(
-          selectedIndex: _currentIndex,
-          onTap: (index) {
-            setState(() => _currentIndex = index);
-            if (index == 0 && _prefs.autoPlay) {
-              context.read<ProductCubit>().loadProducts();
-            }
-          },
-          onCartTap: () => setState(() => _currentIndex = 2),
-        ),
-      ),
+            child: BlocBuilder<CartCubit, CartState>(
+              builder: (context, cartState) {
+                final cartCount = cartState is CartLoaded
+                    ? cartState.totalQuantity
+                    : 0;
+                return BottomNavCustom(
+                  selectedIndex: _currentIndex,
+                  cartCount: cartCount,
+                  onTap: (index) {
+                    setState(() => _currentIndex = index);
+                    if (index == 0 && _prefs.autoPlay) {
+                      context.read<ProductCubit>().loadProducts();
+                    }
+                  },
+                  onCartTap: () => setState(() => _currentIndex = 2),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
-  List<ProductEntity> _applyPreferencesToProducts(List<ProductEntity> products) {
+  List<ProductEntity> _applyPreferencesToProducts(
+    List<ProductEntity> products,
+  ) {
     if (!_prefs.personalizedRecommendations || _prefs.searchHistory.isEmpty) {
       return products;
     }
 
-    final history = _prefs.searchHistory.map((value) => value.toLowerCase()).toList();
+    final history = _prefs.searchHistory
+        .map((value) => value.toLowerCase())
+        .toList();
     final sorted = List<ProductEntity>.from(products);
     sorted.sort((left, right) {
       final leftScore = _productScore(left, history);
@@ -789,7 +1026,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   int _productScore(ProductEntity product, List<String> history) {
-    final searchable = '${product.name} ${product.category} ${product.description}'.toLowerCase();
+    final searchable =
+        '${product.name} ${product.category} ${product.description}'
+            .toLowerCase();
     var score = 0;
     for (final term in history) {
       if (searchable.contains(term)) {
@@ -830,7 +1069,10 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         const Text(
                           'Filtros',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close),
@@ -843,7 +1085,10 @@ class _HomePageState extends State<HomePage> {
                     // Price Range Filter
                     const Text(
                       'Rango de Precio',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     RangeSlider(
@@ -880,7 +1125,10 @@ class _HomePageState extends State<HomePage> {
                     // Rating Filter
                     const Text(
                       'Calificación Mínima',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Row(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../viewmodels/product/product_details_viewmodel.dart';
 import '../../viewmodels/promos/promos_viewmodel.dart';
+import '../checkout/payment_methods_page.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final PromoProduct product;
@@ -112,20 +113,33 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${widget.product.name} fue agregado al carrito'),
-                            duration: const Duration(seconds: 2),
-                            action: SnackBarAction(
-                              label: 'Deshacer',
-                              onPressed: () {},
+                        // Navegar al checkout con el total
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => PaymentMethodsPage(
+                              totalAmount: vm.total,
                             ),
                           ),
                         );
-                        Navigator.pop(context);
                       },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4B2AAD), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14)),
-                      child: const Text('Comprar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4B2AAD),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 4,
+                        shadowColor: const Color(0xFF4B2AAD).withOpacity(0.5),
+                      ),
+                      child: const Text(
+                        'Comprar Ahora',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),

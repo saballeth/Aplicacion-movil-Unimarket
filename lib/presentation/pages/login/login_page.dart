@@ -128,10 +128,20 @@ class _LoginPageState extends State<LoginPage> {
                   // Credenciales de prueba para acceso rápido
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12.0),
-                    child: Text(
-                      'Credenciales de prueba: Usuario 1234 / Contraseña 1234',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      textAlign: TextAlign.center,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Credenciales de prueba:',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Consumidor: 1234 / 1234\nEmprendedor: emp / emp\nAdministrador: admin / admin',
+                          style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
 

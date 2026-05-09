@@ -6,12 +6,14 @@ class BottomNavCustom extends StatelessWidget {
   final int selectedIndex;
   final BottomNavTap? onTap;
   final VoidCallback? onCartTap;
+  final int cartCount;
 
   const BottomNavCustom({
     super.key,
     this.selectedIndex = 0,
     this.onTap,
     this.onCartTap,
+    this.cartCount = 0,
   });
 
   @override
@@ -47,14 +49,38 @@ class BottomNavCustom extends StatelessWidget {
               onTap: () {
                 if (onCartTap != null) onCartTap!();
               },
-              child: Container(
-                height: 72,
-                width: 72,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF5C542),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 36),
+              child: Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  Container(
+                    height: 72,
+                    width: 72,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5C542),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 36),
+                  ),
+                  if (cartCount > 0)
+                    Container(
+                      height: 24,
+                      width: 24,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          cartCount > 99 ? '99+' : cartCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

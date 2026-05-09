@@ -18,10 +18,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F3FF),
+      backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF6F3FF),
       appBar: AppBar(
-        leading: const BackButton(color: Colors.white),
+        leading: BackButton(color: isDarkMode ? Colors.white : Colors.white),
         title: const Text(
           'Notificaciones',
           style: TextStyle(
@@ -40,11 +42,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildHeaderCard(),
+          _buildHeaderCard(isDarkMode),
           const SizedBox(height: 16),
           _buildSectionTitle(
             'Canales principales',
             'Elige dónde quieres recibir las alertas más importantes.',
+            isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -53,6 +56,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             subtitle: 'Recibe alertas en tu correo',
             value: notificacionesEmail,
             onChanged: (val) => setState(() => notificacionesEmail = val),
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -61,11 +65,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
             subtitle: 'Cambios de estado, despacho y entrega',
             value: notificacionesPedidos,
             onChanged: (val) => setState(() => notificacionesPedidos = val),
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 20),
           _buildSectionTitle(
             'Promociones y recordatorios',
             'Mantén el control de ofertas, carritos y novedades.',
+            isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -74,6 +80,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             subtitle: 'Descuentos, campañas y lanzamientos',
             value: notificacionesPromos,
             onChanged: (val) => setState(() => notificacionesPromos = val),
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -82,6 +89,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             subtitle: 'Te avisamos si dejas productos pendientes',
             value: recordatoriosCarrito,
             onChanged: (val) => setState(() => recordatoriosCarrito = val),
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 12),
           _buildToggleCard(
@@ -90,15 +98,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
             subtitle: 'Un resumen con actividad y recomendaciones',
             value: resumenSemanal,
             onChanged: (val) => setState(() => resumenSemanal = val),
+            isDarkMode: isDarkMode,
           ),
           const SizedBox(height: 20),
-          _buildInfoCard(),
+          _buildInfoCard(isDarkMode),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderCard() {
+  Widget _buildHeaderCard(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -157,16 +166,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
-  Widget _buildSectionTitle(String title, String subtitle) {
+  Widget _buildSectionTitle(String title, String subtitle, bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white : Colors.black87,
           ),
         ),
         const SizedBox(height: 4),
@@ -174,7 +183,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           subtitle,
           style: TextStyle(
             fontSize: 13,
-            color: Colors.grey.shade600,
+            color: isDarkMode ? Colors.grey[400] : Colors.grey.shade600,
             height: 1.35,
           ),
         ),
@@ -188,15 +197,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
     required String subtitle,
     required bool value,
     required ValueChanged<bool> onChanged,
+    required bool isDarkMode,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade200,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -208,17 +220,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withOpacity(isDarkMode ? 0.2 : 0.1),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Icon(icon, color: AppColors.primary, size: 24),
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white : Colors.black87,
           ),
         ),
         subtitle: Padding(
@@ -227,7 +239,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             subtitle,
             style: TextStyle(
               fontSize: 13,
-              color: Colors.grey.shade600,
+              color: isDarkMode ? Colors.grey[400] : Colors.grey.shade600,
               height: 1.3,
             ),
           ),
@@ -240,13 +252,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.lightPanel,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : AppColors.lightPanel,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withOpacity(0.08)),
+        border: Border.all(
+          color: AppColors.primary.withOpacity(isDarkMode ? 0.12 : 0.08),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,7 +271,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             child: Text(
               'Puedes volver a esta pantalla cuando quieras para adaptar las notificaciones a tu rutina de compra.',
               style: TextStyle(
-                color: Colors.grey.shade800,
+                color: isDarkMode ? Colors.grey[300] : Colors.grey.shade800,
                 height: 1.35,
                 fontSize: 13,
               ),

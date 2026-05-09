@@ -34,6 +34,8 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
@@ -41,83 +43,111 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
           'Preferencias',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: isDarkMode ? const Color(0xFF1B1B1B) : Colors.white,
+        foregroundColor: isDarkMode ? Colors.white : Colors.black,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.white,
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           SwitchListTile(
-            title: const Text('Modo oscuro'),
-            subtitle: const Text('Activa el tema oscuro de la aplicación'),
+            title: Text(
+              'Modo oscuro',
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+            subtitle: Text(
+              'Activa el tema oscuro de la aplicación',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
             value: prefs.darkMode,
             onChanged: (val) => prefs.toggleDarkMode(val),
             activeThumbColor: const Color(0xFF4B2AAD),
           ),
-          const Divider(),
+          Divider(color: isDarkMode ? Colors.grey[700] : Colors.grey[300]),
           SwitchListTile(
-            title: const Text('Reproducción automática'),
-            subtitle: const Text('Recarga el catálogo automáticamente al volver a Inicio'),
+            title: Text(
+              'Reproducción automática',
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+            subtitle: Text(
+              'Recarga el catálogo automáticamente al volver a Inicio',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
             value: prefs.autoPlay,
             onChanged: (val) => prefs.toggleAutoPlay(val),
             activeThumbColor: const Color(0xFF4B2AAD),
           ),
-          const Divider(),
+          Divider(color: isDarkMode ? Colors.grey[700] : Colors.grey[300]),
           SwitchListTile(
-            title: const Text('Mantener historial de búsqueda'),
-            subtitle: const Text('Guarda tus búsquedas anteriores'),
+            title: Text(
+              'Mantener historial de búsqueda',
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+            subtitle: Text(
+              'Guarda tus búsquedas anteriores',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
             value: prefs.keepSearchHistory,
             onChanged: (val) => prefs.toggleKeepSearchHistory(val),
             activeThumbColor: const Color(0xFF4B2AAD),
           ),
-          const Divider(),
+          Divider(color: isDarkMode ? Colors.grey[700] : Colors.grey[300]),
           SwitchListTile(
-            title: const Text('Recomendaciones personalizadas'),
-            subtitle: const Text('Recibe sugerencias basadas en tus gustos'),
+            title: Text(
+              'Recomendaciones personalizadas',
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+            subtitle: Text(
+              'Recibe sugerencias basadas en tus gustos',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
             value: prefs.personalizedRecommendations,
             onChanged: (val) => prefs.togglePersonalizedRecommendations(val),
             activeThumbColor: const Color(0xFF4B2AAD),
           ),
-          const Divider(),
+          Divider(color: isDarkMode ? Colors.grey[700] : Colors.grey[300]),
           ListTile(
-            title: const Text('Tamaño de texto'),
-            subtitle: Text(prefs.textSize),
+            title: Text(
+              'Idioma',
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+            subtitle: Text(
+              prefs.languageLabel,
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
             trailing: const Icon(Icons.chevron_right, color: Colors.grey),
             onTap: () {
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  title: const Text('Selecciona el tamaño de texto'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: ['Pequeño', 'Normal', 'Grande', 'Muy grande'].map((tam) {
-                      return RadioListTile(
-                        title: Text(tam),
-                        value: tam,
-                        groupValue: prefs.textSize,
-                        onChanged: (val) {
-                          prefs.setTextSize(val!);
-                          Navigator.pop(ctx);
-                        },
-                      );
-                    }).toList(),
+                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                  title: Text(
+                    'Selecciona un idioma',
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : Colors.black,
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-          const Divider(),
-          ListTile(
-            title: const Text('Idioma'),
-            subtitle: Text(prefs.languageLabel),
-            trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('Selecciona un idioma'),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: ['Español', 'English', 'Português'].map((lang) {
@@ -127,7 +157,12 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
                         _ => 'es',
                       };
                       return RadioListTile(
-                        title: Text(lang),
+                        title: Text(
+                          lang,
+                          style: TextStyle(
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ),
                         value: value,
                         groupValue: prefs.languageCode,
                         onChanged: (val) {

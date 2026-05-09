@@ -1,24 +1,33 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:unimarket/domain/entities/user_role.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
 
   /// Mock: in a real app validate against backend.
-  /// For testing, only accept the explicit test account below.
-  /// Test credentials: 1234 / 1234
+  /// Test credentials:
+  /// - Consumer: 1234 / 1234
+  /// - Entrepreneur: emp / emp
+  /// - Admin: admin / admin
   Future<void> login(String email, String password) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    const testEmail = '1234';
-    const testPassword = '1234';
 
-    if (email == testEmail && password == testPassword) {
-      emit(Authenticated(AuthUser(email: email, role: 'standard')));
+    // Determine role based on credentials
+    UserRole role;
+    
+    if (email == '1234' && password == '1234') {
+      role = UserRole.consumer;
+    } else if (email == 'emp' && password == 'emp') {
+      role = UserRole.entrepreneur;
+    } else if (email == 'admin' && password == 'admin') {
+      role = UserRole.admin;
+    } else {
+      emit(Unauthenticated());
       return;
     }
 
-    // Otherwise unauthenticated
-    emit(Unauthenticated());
+    emit(Authenticated(AuthUser(email: email, role: role)));
   }
 
   void logout() => emit(Unauthenticated());

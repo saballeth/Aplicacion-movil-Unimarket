@@ -1,7 +1,13 @@
+import 'package:unimarket/domain/entities/user_role.dart';
+
 class AuthUser {
   final String email;
-  final String role;
-  AuthUser({required this.email, required this.role});
+  final UserRole role;
+
+  AuthUser({
+    required this.email,
+    this.role = UserRole.consumer,
+  });
 }
 
 abstract class AuthState {}
