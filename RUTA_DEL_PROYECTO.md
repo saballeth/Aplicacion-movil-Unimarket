@@ -1,8 +1,8 @@
-# 📱 UNIMARKET
+# UNIMARKET
 
 ## Visión general
 
-**UNIMARKET** es una aplicación móvil de marketplace universitario que conecta a estudiantes emprendedores (Entrepreneurs) con consumidores (Consumers) en un entorno controlado. La plataforma permite compra/venta de productos, gestión de pedidos, y búsqueda inteligente de productos mediante un motor de búsqueda tabú.
+**UNIMARKET** es una aplicación móvil de marketplace universitario que conecta a estudiantes emprendedores con consumidores en un entorno controlado. La plataforma permite compra/venta de productos, gestión de pedidos, y búsqueda inteligente de productos mediante un motor de búsqueda tabú.
 
 ### Estado actual
 - **Frontend**: 80% completo (Flutter, Material Design 3, BLoC architecture)
