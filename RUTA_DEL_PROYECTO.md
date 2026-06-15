@@ -301,7 +301,7 @@ Hosting:
 
 ---
 
-# SECCIÓN PARA EL GRUPO DE NEGOCIOS
+# Seccion para el grupo de negocios
 
 ## Tareas
 
