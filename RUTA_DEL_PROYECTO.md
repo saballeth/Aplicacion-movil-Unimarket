@@ -365,12 +365,6 @@ Hosting:
 
 ### FASE 4: Monetización
 
-#### Pricing Strategy
-- [ ] Definir comisión por transacción (% o monto fijo)
-- [ ] Featured listings / Premium ads pricing
-- [ ] Subscription options (si aplica)
-- [ ] Análisis de competencia de precios
-
 #### Business Metrics
 - [ ] KPIs principales (GMV, number of transactions, user retention)
 - [ ] Dashboard de métricas de negocio
