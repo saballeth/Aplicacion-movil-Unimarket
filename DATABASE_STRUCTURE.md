@@ -4,7 +4,7 @@
 
 UniMarket utiliza una **arquitectura de base de datos relacional** diseñada para soportar un marketplace de estudiantes universitarios. La estructura está optimizada para la arquitectura Clean Architecture + MVVM del proyecto.
 
-### Capas de Datos
+### Capas de datos
 ```
 Presentación (UI)
     ↓
@@ -19,7 +19,7 @@ Repository Implementation + Datasources
 Local (SQLite) / Remote (API REST)
 ```
 
-## 2. Diagrama Entidad-Relación (ER)
+## 2. Diagrama Entidad-Relación
 
 ```
 ┌─────────────┐
@@ -187,7 +187,7 @@ Local (SQLite) / Remote (API REST)
 
 ## 3. Especificación de tablas
 
-### USERS (Tabla principal de usuarios)
+### Tabla principal de usuarios
 ```sql
 CREATE TABLE users (
   id TEXT PRIMARY KEY,

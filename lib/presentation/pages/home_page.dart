@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
     _notificationsCubit = sl<NotificationsCubit>();
     _ordersCubit = OrdersCubit()..loadOrders();
     _ordersCubit.stream.listen((s) {
-      if (s is OrdersLoaded) {
+      if (s is OrdersLoaded && mounted) {
         final pending = s.orders
             .where((o) => o.status.toLowerCase() != 'entregado')
             .length;
@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
     _profileCubit = ProfileCubit();
     _profileCubit.loadProfile();
     _profileCubit.stream.listen((s) {
-      if (s is ProfileLoaded) {
+      if (s is ProfileLoaded && mounted) {
         setState(() => _userName = s.user.name);
         // Load notifications for the user
         _notificationsCubit.loadNotifications(s.user.id, s.user.role);
@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
     });
     // Listen to notifications updates
     _notificationsCubit.stream.listen((state) {
-      if (state is NotificationsLoaded) {
+      if (state is NotificationsLoaded && mounted) {
         final unread = state.notifications.where((n) => !n.isRead).length;
         setState(() => _unreadNotifications = unread);
       }
@@ -109,7 +109,11 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onAddressChanged() => setState(() {});
+  void _onAddressChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   void _onPrefsChanged() {
     if (mounted) {
