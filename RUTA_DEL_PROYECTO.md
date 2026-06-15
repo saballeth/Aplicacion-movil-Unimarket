@@ -1,4 +1,4 @@
-# 📱 UNIMARKET - Análisis General del Proyecto
+# 📱 UNIMARKET
 
 ## Visión general
 
