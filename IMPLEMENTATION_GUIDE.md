@@ -1,10 +1,8 @@
 # Guía de Implementación - Base de Datos y Responsividad
 
-## 📋 Resumen de Cambios
+## Resumen de cambios
 
-Has realizado 3 mejoras principales en UniMarket:
-
-### 1. ✅ Mensaje de Bienvenida Personalizado
+### 1. Mensaje de bienvenida
 **Archivo:** `lib/presentation/pages/login/login_page.dart`
 
 El mensaje ahora cambia según el rol del usuario:
@@ -12,7 +10,7 @@ El mensaje ahora cambia según el rol del usuario:
 - **Emprendedor:** "¡Hola emprendedor! 📈 Gestiona tu negocio con éxito"
 - **Admin:** "¡Bienvenido Admin! ⚙️ Sistema listo para administrar"
 
-**Cómo funciona:**
+**¿Cómo funciona?**
 ```dart
 String _getWelcomeMessage(String roleString) {
   if (roleString.contains('consumer')) {
@@ -28,20 +26,20 @@ String _getWelcomeMessage(String roleString) {
 
 ---
 
-### 2. ✅ Sistema de Responsividad Global
+### 2. Sistema responsividad
 
-**Archivos Creados:**
+**Archivos creados:**
 - `lib/core/utils/responsive_constants.dart` - Constantes de tamaño
 - `lib/core/utils/responsive_helper.dart` - Helper con funciones responsivas
 - `lib/core/utils/responsive_widgets.dart` - Widgets responsive reutilizables
 
 **Características:**
-- Breakpoints para mobile, tablet y desktop
+- Breakpoints para mobile y tablet
 - Cálculo dinámico de tamaños de fuente, padding y elementos
 - Widgets responsive listos para usar
 - Funciones para detectar tipo de dispositivo
 
-**Uso Básico:**
+**Uso básico:**
 ```dart
 import 'package:unimarket/core/utils/responsive_helper.dart';
 import 'package:unimarket/core/utils/responsive_constants.dart';
@@ -86,7 +84,7 @@ ResponsiveButton(
 
 ---
 
-### 3. ✅ Estructura Completa de Base de Datos
+### 3. Estructura de la base de datos
 
 #### Archivo de Documentación
 **Archivo:** `DATABASE_STRUCTURE.md`
@@ -98,7 +96,7 @@ Este archivo contiene:
 - Relaciones entre tablas
 - Flujo de datos por rol
 
-#### Modelos de Datos Creados
+#### Modelos de datos creados
 
 **`lib/data/models/user_model.dart`**
 ```dart
@@ -163,7 +161,7 @@ class FavoriteModel { /* Favoritos */ }
 class CartItemModel { /* Items del carrito */ }
 ```
 
-#### Base de Datos Local
+#### Base de datos local
 **Archivo:** `lib/core/database/database_helper.dart`
 
 Helper para gestionar SQLite:
@@ -205,7 +203,7 @@ await localDS.saveProduct(product);
 
 ---
 
-## 📦 Dependencias Agregadas
+## Dependencias agregadas
 
 ```yaml
 dependencies:
@@ -220,113 +218,36 @@ flutter pub get
 
 ---
 
-## 🔧 Próximos Pasos Recomendados
-
-### 1. Crear Repositories
-```dart
-// lib/data/repositories/product_repository_impl.dart
-class ProductRepositoryImpl implements ProductRepository {
-  final RemoteDataSource remoteDataSource;
-  final LocalDataSource localDataSource;
-
-  ProductRepositoryImpl({
-    required this.remoteDataSource,
-    required this.localDataSource,
-  });
-
-  @override
-  Future<ProductModel> getProduct(String id) async {
-    // Primero intenta local, luego remoto con caché
-  }
-}
-```
-
-### 2. Actualizar Injection Container
-```dart
-// lib/core/injection_container.dart
-void setupDataSources() {
-  sl.registerLazySingleton(
-    () => DatabaseHelper(),
-  );
-  
-  sl.registerLazySingleton(
-    () => RemoteDataSourceImpl(dio: sl()),
-  );
-  
-  sl.registerLazySingleton(
-    () => LocalDataSourceImpl(databaseHelper: sl()),
-  );
-}
-```
-
-### 3. Migración de SharedPreferences a SQLite
-```dart
-class MigrationService {
-  Future<void> migrateFromSharedPreferences() async {
-    // 1. Leer datos de SP
-    // 2. Convertir a modelos
-    // 3. Guardar en SQLite
-    // 4. Eliminar de SP
-  }
-}
-```
-
-### 4. Refactorizar Más Páginas
-Aplicar ResponsiveHelper a más páginas para mejora consistente:
-- RegistrationPage
-- HomePage
-- ProfilePage
-- ProductDetailPage
-
----
-
-## 📱 Testing de Responsividad
-
-Para probar en diferentes tamaños:
-
-```bash
-# Flutter DevTools
-flutter pub global activate devtools
-flutter pub global run devtools
-
-# O en VS Code: Run > Run with Arguments
-flutter run -d chrome --web-renderer=html
-```
-
-Cambiar tamaño de ventana en DevTools para ver adaptación.
-
----
-
-## 🗄️ Estructura Final
+## Estructura final
 
 ```
 lib/
 ├── core/
 │   ├── database/
-│   │   └── database_helper.dart ✨ NUEVO
+│   │   └── database_helper.dart
 │   └── utils/
-│       ├── responsive_constants.dart ✨ NUEVO
-│       ├── responsive_helper.dart ✨ NUEVO
-│       └── responsive_widgets.dart ✨ NUEVO
+│       ├── responsive_constants.dart
+│       ├── responsive_helper.dart 
+│       └── responsive_widgets.dart 
 ├── data/
 │   ├── datasources/
-│   │   ├── remote_data_source.dart ✨ NUEVO
-│   │   └── local_data_source.dart ✨ NUEVO
+│   │   ├── remote_data_source.dart 
+│   │   └── local_data_source.dart 
 │   └── models/
-│       ├── user_model.dart ✨ NUEVO
-│       ├── entrepreneur_model.dart ✨ NUEVO
-│       ├── order_model.dart ✨ NUEVO
-│       ├── address_model.dart ✨ NUEVO
-│       └── interaction_models.dart ✨ NUEVO
+│       ├── user_model.dart 
+│       ├── entrepreneur_model.dart 
+│       ├── order_model.dart 
+│       ├── address_model.dart 
+│       └── interaction_models.dart 
 └── presentation/
     └── pages/
         └── login/
-            └── login_page.dart 🔄 MODIFICADO
+            └── login_page.dart 
 ```
 
 ---
 
-## ✨ Mejoras Implementadas
+## Mejoras implementadas
 
 | Aspecto | Antes | Después |
 |--------|-------|---------|
@@ -339,7 +260,7 @@ lib/
 
 ---
 
-## 🚀 Ejecución
+## Ejecución
 
 ```bash
 # Actualizar dependencias
@@ -354,7 +275,7 @@ flutter run -d chrome
 
 ---
 
-## 📝 Notas Importantes
+## Notas importantes
 
 1. **SQLite vs SharedPreferences:**
    - SharedPreferences: Bueno para datos simples y pares clave-valor
@@ -376,48 +297,10 @@ flutter run -d chrome
 
 ---
 
-## � Modo Oscuro Mejorado (v3.0)
 
-Se ha implementado soporte completo para tema oscuro en toda la aplicación con los siguientes cambios:
+## NotificationHelper - Notificaciones
 
-### Cambios en `lib/main.dart`
-
-**Light Theme:**
-- Fondo: Blanco puro
-- AppBar: Blanco
-- Texto: Negro/Gris oscuro
-- Cards: Blanco
-
-**Dark Theme:**
-- Fondo: #121212 (Material Design standard)
-- AppBar: #1B1B1B
-- Cards: #1E1E1E
-- Texto: Blanco/Gris claro
-- Inputs: Fondo #2C2C2C con bordes gris oscuro
-
-### Características
-
-✅ **Consistencia global** - Todos los componentes respetan el tema
-✅ **Transiciones suaves** - AnimatedBuilder para cambios dinámicos
-✅ **Material 3** - ColorScheme moderno y escalable
-✅ **Inputs mejorados** - InputDecorationTheme específico para dark mode
-
-### Uso en Vistas
-
-```dart
-// Obtener si está en modo oscuro
-final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-// Usar colores del tema
-Color backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-TextStyle textStyle = Theme.of(context).textTheme.bodyMedium!;
-```
-
----
-
-## 📢 NotificationHelper - Notificaciones Mejoradas (v3.0)
-
-Se ha creado `NotificationHelper` para reemplazar los SnackBars básicos con notificaciones centradas, con tema oscuro automático y duración corta.
+Se ha creado `NotificationHelper` para reemplazar los SnackBars básicos con notificaciones centradas y duración corta.
 
 ### Archivo
 
@@ -425,7 +308,7 @@ Se ha creado `NotificationHelper` para reemplazar los SnackBars básicos con not
 lib/core/utils/notification_helper.dart
 ```
 
-### Métodos Disponibles
+### Métodos disponibles
 
 ```dart
 // Éxito (verde con checkmark)
@@ -462,30 +345,17 @@ NotificationHelper.show(
 );
 ```
 
-### Características
-
-✅ **Centrado en pantalla** - Aparece en el centro inferior sin desplazar contenido
-✅ **Duración corta** - 1.5s por defecto (personalizable)
-✅ **Tema oscuro automático** - Se adapta al modo actual
-✅ **Iconos contextuales** - Cada tipo tiene su propio icono
-✅ **Diseño moderno** - Bordes redondeados y sombra
-✅ **Multi-línea** - Soporta hasta 2 líneas
-
-### Archivos Actualizados
+### Archivos actualizados
 
 Se han actualizado estos archivos para usar `NotificationHelper`:
-- `lib/presentation/pages/login/login_page.dart` ✅
-- `lib/presentation/pages/registration/registration_page.dart` ✅
-- `lib/presentation/pages/password_recovery/password_recovery_page.dart` ✅
-- `lib/presentation/pages/email_confirmation/email_confirmation_page.dart` ✅
-
-### Guía Completa
-
-Ver: `lib/core/utils/NOTIFICATION_HELPER_USAGE.md`
+- `lib/presentation/pages/login/login_page.dart` 
+- `lib/presentation/pages/registration/registration_page.dart`
+- `lib/presentation/pages/password_recovery/password_recovery_page.dart`
+- `lib/presentation/pages/email_confirmation/email_confirmation_page.dart`
 
 ---
 
-## �🆘 Troubleshooting
+## Troubleshooting
 
 **Error: "Cannot find sqflite"**
 ```bash
@@ -504,21 +374,10 @@ flutter pub get
 - Usar `context` valido en BuildContext
 - Probar en different screen sizes
 
-**Tema oscuro no se aplica:**
-- Verificar que `themeMode` en MaterialApp sea válido
-- Asegurarse de que AppPreferencesController cargó correctamente
-- Revisar que darkTheme está definido en MaterialApp
-
 **NotificationHelper no aparece:**
 - Verificar que el Scaffold padre está presente
 - Asegurar que `context` es válido
 - Revisar que ScaffoldMessenger no está siendo bloqueado
 
-**Notificaciones no tienen tema oscuro:**
-- NotificationHelper se adapta automáticamente
-- Si no funciona, verificar Theme.of(context) en MaterialApp
-- Asegurar que darkTheme está correctamente configurado
 
 ---
-
-¡Los cambios están listos para usar! Continúa desarrollando según la arquitectura Clean Architecture + MVVM establecida. 🎉

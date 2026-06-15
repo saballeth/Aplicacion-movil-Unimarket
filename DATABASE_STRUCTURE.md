@@ -1,6 +1,6 @@
-# Arquitectura de Base de Datos - UniMarket
+# Arquitectura de base de datos
 
-## 1. Visión General
+## 1. Visión general
 
 UniMarket utiliza una **arquitectura de base de datos relacional** diseñada para soportar un marketplace de estudiantes universitarios. La estructura está optimizada para la arquitectura Clean Architecture + MVVM del proyecto.
 
@@ -185,9 +185,9 @@ Local (SQLite) / Remote (API REST)
 └──────────────────────────┘
 ```
 
-## 3. Especificación de Tablas
+## 3. Especificación de tablas
 
-### USERS (Tabla Principal de Usuarios)
+### USERS (Tabla principal de usuarios)
 ```sql
 CREATE TABLE users (
   id TEXT PRIMARY KEY,
@@ -422,14 +422,14 @@ CREATE TABLE admin_reports (
 );
 ```
 
-## 3.2 Motor de Búsqueda Tabú (Tabu Search Algorithm) 🔍🎯
+## 3.2 Motor de búsqueda Tabú (Tabu Search Algorithm)
 
 Este módulo implementa un algoritmo de Búsqueda Tabú que balancea 3 objetivos en conflicto:
 1. **Relevancia**: similitud con perfil del usuario
 2. **Diversidad**: evitar burbuja de recomendaciones (entropía de categorías)
 3. **Equidad**: visibilidad uniforme para emprendedores (especialmente nuevos)
 
-### 3.2.1 Tablas Remotas (Supabase/Backend)
+### 3.2.1 Tablas remotas (Supabase/Backend)
 
 #### CATEGORY_EXPOSURE
 Rastrea la exposición histórica de categorías para calcular entropía y diversidad
@@ -488,7 +488,7 @@ CREATE TABLE recommendation_logs (
 );
 ```
 
-### 3.2.2 Tablas Locales (SQLite Embebido en Dispositivo - Dart/sqflite)
+### 3.2.2 Tablas locales (SQLite Embebido en Dispositivo - Dart/sqflite)
 
 Estas tablas existen **solo en el dispositivo** y no se sincronizan con el servidor. Permiten:
 - Procesamiento offline del algoritmo
@@ -564,7 +564,7 @@ CREATE TABLE tabu_algorithm_state (
 );
 ```
 
-## 3.3 Módulo de Comunicación 💬
+## 3.3 Módulo de Comunicación
 
 ### NOTIFICATIONS
 ```sql
@@ -608,7 +608,7 @@ CREATE TABLE conversations (
 );
 ```
 
-## 3.4 Módulo de Promociones 🎟️
+## 3.4 Módulo de promociones
 
 ### COUPONS
 ```sql
@@ -641,7 +641,7 @@ CREATE TABLE coupon_uses (
 );
 ```
 
-## 3.5 Módulo de Logística 📦
+## 3.5 Módulo de logística
 
 ### SHIPMENTS
 ```sql
@@ -690,7 +690,7 @@ CREATE TABLE returns (
 );
 ```
 
-## 3.6 Módulo de Catálogo Extendido 🛍️
+## 3.6 Módulo de catálogo extendido
 
 ### PRODUCT_VARIANTS
 ```sql
@@ -736,7 +736,7 @@ CREATE TABLE product_questions (
 );
 ```
 
-## 3.7 Módulo de Búsqueda & Recomendación 🔍
+## 3.7 Módulo de búsqueda y recomendaciónes
 
 ### SEARCH_HISTORY
 ```sql
@@ -763,7 +763,7 @@ CREATE TABLE product_similarity (
 );
 ```
 
-## 3.8 Módulo de Soporte & Moderación 🛡️
+## 3.8 Módulo de soporte
 
 ### SUPPORT_TICKETS
 ```sql
@@ -828,7 +828,7 @@ CREATE TABLE entrepreneur_ratings (
 );
 ```
 
-## 3.9 Módulo de Seguridad & Auditoría 🔐
+## 3.9 Módulo de seguridad
 
 ### SESSIONS
 ```sql
@@ -904,7 +904,7 @@ CREATE INDEX idx_sessions_expires_at ON sessions(expires_at);
 CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
 
--- Índices para Motor de Búsqueda Tabú (Tabu Search)
+-- Índices para el motor de búsqueda Tabú (Tabu Search)
 -- Tablas Remotas
 CREATE INDEX idx_category_exposure_user_id ON category_exposure(user_id);
 CREATE INDEX idx_category_exposure_category_id ON category_exposure(category_id);
@@ -916,14 +916,14 @@ CREATE INDEX idx_recommendation_logs_product_id ON recommendation_logs(product_i
 CREATE INDEX idx_recommendation_logs_algorithm_version ON recommendation_logs(algorithm_version);
 CREATE INDEX idx_recommendation_logs_created_at ON recommendation_logs(created_at);
 
--- Índices para Tablas Locales (SQLite embebido)
+-- Índices para tablas locales (SQLite embebido)
 CREATE INDEX idx_tabu_list_entity_id ON tabu_list(entity_id);
 CREATE INDEX idx_tabu_list_expires_at ON tabu_list(expires_at);
 CREATE INDEX idx_local_products_cache_category_id ON local_products_cache(category_id);
 CREATE INDEX idx_local_products_cache_is_active ON local_products_cache(is_active);
 ```
 
-## 5. Relaciones Principales
+## 5. Relaciones principales
 
 | Tabla Origen | Tabla Destino | Tipo | Descripción |
 |-------------|---------------|------|-------------|
@@ -955,22 +955,22 @@ CREATE INDEX idx_local_products_cache_is_active ON local_products_cache(is_activ
 | orders | shipments | 1:N | Una orden puede tener múltiples envíos |
 | entrepreneurs | delivery_zones | 1:N | Un emprendedor cubre múltiples zonas |
 | orders | returns | 1:N | Una orden puede tener múltiples devoluciones |
-| **Catálogo Extendido** |  |  |  |
+| **Catálogo** |  |  |  |
 | products | product_variants | 1:N | Un producto tiene múltiples variantes |
 | products | product_tags | 1:N | Un producto puede tener múltiples etiquetas |
 | products | product_questions | 1:N | Un producto puede tener múltiples preguntas |
-| **Búsqueda & Recomendación** |  |  |  |
+| **Búsqueda y recomendación** |  |  |  |
 | users | search_history | 1:N | Un usuario tiene histórico de búsquedas |
 | products | product_similarity | M:N | Similitud bidireccional entre productos |
-| **Soporte & Moderación** |  |  |  |
+| **Soporte** |  |  |  |
 | users | support_tickets | 1:N | Un usuario puede crear múltiples tickets |
 | support_tickets | ticket_messages | 1:N | Un ticket contiene múltiples mensajes |
 | orders | disputes | 1:N | Una orden puede generar un conflicto |
 | entrepreneurs | entrepreneur_ratings | 1:N | Un emprendedor recibe múltiples calificaciones |
-| **Seguridad & Auditoría** |  |  |  |
+| **Seguridad** |  |  |  |
 | users | sessions | 1:N | Un usuario puede tener múltiples sesiones activas |
 | users | audit_logs | 1:N | Un usuario genera múltiples eventos de auditoría |
-| **Motor de Búsqueda Tabú** |  |  |  |
+| **Motor de búsqueda Tabú** |  |  |  |
 | users | category_exposure | 1:N | Un usuario tiene exposición por categoría |
 | categories | category_exposure | 1:N | Una categoría tiene exposición por usuario |
 | users | entrepreneur_impressions | 1:N | Un usuario genera impresiones por emprendedor |
@@ -979,9 +979,9 @@ CREATE INDEX idx_local_products_cache_is_active ON local_products_cache(is_activ
 | products | recommendation_logs | 1:N | Un producto aparece en múltiples recomendaciones |
 | entrepreneurs | recommendation_logs | 1:N | Un emprendedor genera múltiples recomendaciones |
 
-## 6. Flujo de Datos por Rol
+## 6. Flujo de datos por rol
 
-### 🛍️ Consumer (Consumidor)
+### Consumidor
 - Búsqueda y navegación de productos con historial
 - Agregar a favoritos y consultar preguntas de productos
 - Carrito de compras y aplicar cupones
@@ -993,12 +993,12 @@ CREATE INDEX idx_local_products_cache_is_active ON local_products_cache(is_activ
 - Crear tickets de soporte y disputas
 - Recibir notificaciones de cambios
 
-**Tablas Principales:**
+**Tablas principales:**
 - users, products, cart_items, orders, order_items, payments, reviews, addresses, favorites
 - notifications, messages, conversations, coupons, shipments, returns
 - product_questions, search_history, support_tickets, disputes, entrepreneur_ratings
 
-### 📦 Entrepreneur (Emprendedor)
+### Emprendedor
 - Crear y gestionar productos con variantes y etiquetas
 - Ver ventas y reportes
 - Gestionar banco y retiros
@@ -1011,13 +1011,13 @@ CREATE INDEX idx_local_products_cache_is_active ON local_products_cache(is_activ
 - Ver calificaciones como vendedor
 - Recibir notificaciones de órdenes y eventos
 
-**Tablas Principales:**
+**Tablas principales:**
 - entrepreneurs, products, entrepreneur_documents, bank_accounts, orders, order_items, payments
 - product_variants, product_tags, product_questions, coupons
 - shipments, delivery_zones, messages, conversations, notifications
 - entrepreneur_ratings, search_history, audit_logs
 
-### ⚙️ Admin (Administrador)
+### Administrador
 - Aprobar/rechazar emprendedores
 - Ver todos los usuarios y gestionar roles
 - Generar reportes y ver analytics
@@ -1029,7 +1029,7 @@ CREATE INDEX idx_local_products_cache_is_active ON local_products_cache(is_activ
 - Resolver tickets de soporte
 - Acceso a todas las tablas del sistema
 
-**Tablas Principales:**
+**Tablas principales:**
 - users, entrepreneurs, products, admin_reports, reviews
 - support_tickets, disputes, audit_logs, sessions
 - coupons (nivel global), notifications, messages
@@ -1069,7 +1069,7 @@ Cubit/ViewModel
 UI
 ```
 
-## 8. Consideraciones de Seguridad
+## 8. Consideraciones de seguridad
 
 1. **Passwords:** Hasheadas con algoritmo seguro (bcrypt)
 2. **Datos Sensibles:** Tokenización de números de tarjeta
@@ -1079,7 +1079,7 @@ UI
 6. **Sesiones:** Expiración automática de tokens en tabla SESSIONS
 7. **Encriptación:** Datos de banco y documentos deben encriptarse antes de almacenar
 
-## 9. Migración de Datos Locales a Base de Datos
+## 9. Migración de datos locales a la base de datos
 
 Actualmente la app usa SharedPreferences. La migración debe:
 
@@ -1088,59 +1088,59 @@ Actualmente la app usa SharedPreferences. La migración debe:
 3. Sincronizar con servidor backend
 4. Implementar caché estratégico
 
-## 10. Cambios Recientes - Motor de Búsqueda Tabú (v3.0)
+## 10. Motor de búsqueda Tabú
 
-### Motor de Búsqueda Tabú 🔍🎯 (Nuevo en v3.0)
+### Motor de búsqueda Tabú
 
-Se ha agregado un módulo completo que implementa un **Algoritmo de Búsqueda Tabú multi-objetivo** para personalizar recomendaciones de productos mientras balancea tres objetivos en conflicto:
+Se ha agregado un módulo que implementa la búsqueda Tabú multi-objetivo para personalizar recomendaciones de productos mientras balancea tres objetivos en conflicto:
 
-#### Tablas Remotas (Supabase)
+#### Tablas remotas (Supabase)
 - **CATEGORY_EXPOSURE:** Rastrea exposición histórica de categorías por usuario para calcular entropía y evitar burbuja de recomendaciones (Objetivo 2: Diversidad)
 - **ENTREPRENEUR_IMPRESSIONS:** Contador de impresiones por emprendedor y usuario para garantizar equidad en visibilidad, especialmente para emprendedores nuevos (Objetivo 3: Equidad)
 - **RECOMMENDATION_LOGS:** Logs detallados de cada recomendación incluyendo scores de los 3 objetivos, para auditoría y evaluación experimental del algoritmo (Fase 4 de validación)
 
-#### Tablas Locales (SQLite embebido - Dart/sqflite)
+#### Tablas locales (SQLite embebido - Dart/sqflite)
 - **LOCAL_USER_PROFILE:** Perfil ligero del usuario almacenado solo en el dispositivo (no viaja al servidor) con preferencias, rango de precios, y frecuencia de búsqueda
 - **TABU_LIST:** Lista tabú persistida entre sesiones con elementos rechazados (productos o emprendedores) y fecha de expiración
 - **LOCAL_PRODUCTS_CACHE:** Caché local de productos para permitir filtrado sin conexión de red
 - **TABU_ALGORITHM_STATE:** Estado del algoritmo entre ejecuciones (iteración actual, mejor solución, tenencia tabú, último tiempo de ejecución)
 
-**Tres Objetivos Balanceados:**
+**Tres objetivos balanceados:**
 1. **Relevancia** (PRODUCT_SIMILARITY): Productos similares al perfil del usuario
 2. **Diversidad** (CATEGORY_EXPOSURE): Variedad de categorías para evitar efecto burbuja
 3. **Equidad** (ENTREPRENEUR_IMPRESSIONS): Visibilidad equitativa entre vendedores
 
-### Módulos Agregados en Versiones Anteriores
+### Módulos agregados
 
-#### Módulo de Comunicación 💬 (v2.0)
+#### Módulo de Comunicación
 - **NOTIFICATIONS:** Sistema de alertas en app y push para usuarios sobre cambios de orden, promociones, mensajes y eventos del sistema
 - **MESSAGES:** Chat directo entre comprador y emprendedor sobre productos específicos
 - **CONVERSATIONS:** Hilo agrupador que gestiona múltiples mensajes entre usuarios y registra el último mensaje y conteo de no leídos
 
-#### Módulo de Promociones 🎟️ (v2.0)
+#### Módulo de promociones
 - **COUPONS:** Códigos de descuento configurables por porcentaje o monto fijo, con validez temporal y límites de uso
 - **COUPON_USES:** Historial de cada uso de cupón asociado a usuario y orden para auditoría
 
-#### Módulo de Logística 📦 (v2.0)
+#### Módulo de logística
 - **SHIPMENTS:** Trazabilidad de envíos independiente con transportista, número de seguimiento y estados
 - **DELIVERY_ZONES:** Zonas de cobertura configurables por emprendedor con costos y tiempos estimados de entrega
 - **RETURNS:** Gestión de devoluciones y cambios con razones, estado de aprobación y montos de reembolso
 
-#### Módulo de Catálogo Extendido 🛍️ (v2.0)
+#### Módulo de Catálogo  
 - **PRODUCT_VARIANTS:** Variantes de producto (talla, color, material, etc.) con precios adicionales y SKU independientes
 - **PRODUCT_TAGS:** Etiquetas libres para mejorar búsqueda y clasificación de productos
 - **PRODUCT_QUESTIONS:** Preguntas y respuestas públicas sobre productos respondidas por el emprendedor
 
-#### Módulo de Búsqueda & Recomendación 🔍 (v2.0)
+#### Módulo de búsqueda y recomendación
 - **SEARCH_HISTORY:** Historial de búsquedas por usuario para análisis de comportamiento y recomendaciones
 - **PRODUCT_SIMILARITY:** Matriz precalculada de similitud entre productos usando métodos colaborativos o de contenido
 
-#### Módulo de Soporte & Moderación 🛡️ (v2.0)
+#### Módulo de soporte
 - **SUPPORT_TICKETS:** Sistema de tickets con prioridad y asignación a personal de soporte
 - **TICKET_MESSAGES:** Mensajes dentro del ticket para comunicación entre usuario y soporte
 - **DISPUTES:** Conflictos formales entre comprador y emprendedor con resolución por admin
 - **ENTREPRENEUR_RATINGS:** Calificación global del emprendedor separada de la calificación de productos
 
-#### Módulo de Seguridad & Auditoría 🔐 (v2.0)
+#### Módulo de Seguridad
 - **SESSIONS:** Gestión de sesiones activas por dispositivo con expiración de tokens
 - **AUDIT_LOGS:** Trazabilidad completa de todas las acciones críticas del sistema con valores anteriores y nuevos

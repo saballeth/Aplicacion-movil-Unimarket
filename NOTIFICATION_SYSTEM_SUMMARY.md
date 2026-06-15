@@ -1,27 +1,19 @@
-# 📱 Proyecto UniMarket - Resumen de Mejoras v3.0
+# 📱 Proyecto UniMarket - Resumen
 
-## ✨ Mejoras Implementadas en esta Sesión
+## Mejoras implementadas
 
-### 1. 🌙 Tema Oscuro Completo
-**Ubicación:** `lib/main.dart`
 
-Se ha implementado un sistema de tema oscuro robusto con:
-- **Light Theme**: Colores claros según Material Design 3
-- **Dark Theme**: Paleta #121212, #1B1B1B, #1E1E1E como estándar
-- **ComponentesTematizados**: AppBar, Cards, Dialogs, Inputs, SnackBars
-- **Transiciones suaves**: AnimatedBuilder para cambios dinámicos
-
-### 2. 🔔 Sistema de Notificaciones Mejorado
+### 1. Sistema de notificaciones
 **Ubicación:** `lib/core/utils/notification_helper.dart`
 
 Características:
-- ✅ **Centrado en pantalla** - Flotante en el centro inferior
-- ✅ **Duración corta** - 1.5 segundos por defecto
-- ✅ **Tema oscuro automático** - Adaptable a ambos temas
-- ✅ **Iconos contextuales** - Éxito, error, advertencia, información
-- ✅ **5 métodos públicos**: showSuccess, showError, showWarning, showInfo, show
+- **Centrado en pantalla** - Flotante en el centro inferior
+- **Duración corta** - 1.5 segundos por defecto
+- **Tema oscuro automático** - Adaptable a ambos temas
+- **Iconos contextuales** - Éxito, error, advertencia, información
+- **5 métodos públicos**: showSuccess, showError, showWarning, showInfo, show
 
-### 3. 🔄 Migración de Notificaciones Completada (53% de páginas)
+### 2. Migración de notificaciones
 
 **16 páginas completadas:**
 
@@ -66,37 +58,15 @@ Características:
 
 ## 📚 Archivos de Documentación
 
-### NotificationHelper Usage Guide
+### NotificationHelper usage guide
 **Archivo:** `lib/core/utils/NOTIFICATION_HELPER_USAGE.md`
 - Ejemplos completos de uso
 - Patrones BLoC/BlocListener
 - Duraciones recomendadas
 - Comparación vs ScaffoldMessenger
 
-### Implementation Guide Actualizado
-**Archivo:** `IMPLEMENTATION_GUIDE.md`
-- Sección Dark Mode (v3.0)
-- Sección NotificationHelper (v3.0)
-- Troubleshooting actualizado
 
-## 🎯 Beneficios Implementados
-
-### Para el Usuario
-✅ Notificaciones centradas y visibles sin distracciones laterales
-✅ Confirmaciones rápidas que no obstruyen la experiencia
-✅ Tema oscuro que respeta preferencias del sistema
-✅ Mejor contraste y legibilidad en ambos temas
-
-### Para el Desarrollador
-✅ Código centralizado en NotificationHelper (sin duplicación)
-✅ Fácil consistencia en toda la app
-✅ Documentación clara para nuevas implementaciones
-✅ Mantenimiento simplificado
-
-## 🚀 Cómo Usar las Nuevas Características
-
-### Dark Mode
-El tema se adapta automáticamente. No requiere cambios en la app, solo en settings del usuario.
+## Uso de las características
 
 ### Notificaciones Mejoradas
 
@@ -126,58 +96,22 @@ NotificationHelper.showInfo(
 );
 ```
 
-## 📋 Trabajo Pendiente (Próxima Sesión)
+## Trabajo pendiente (Próxima Sesión)
 
-### Páginas Aún No Migradas (14+)
+### Páginas aún no migradas
 - Admin pages: manage_users_page.dart, manage_business_page.dart, manage_products_page.dart, reports_page.dart
 - Settings: privacy_security_page.dart, order_preferences_page.dart
 - Other: entrepreneur_page.dart
 - Y otros que puedan encontrarse en grep_search
 
-### Pruebas Recomendadas
-1. Visual testing en light mode
-2. Visual testing en dark mode
+### Pruebas por hacer
 3. Pruebas de duración de notificaciones
 4. Pruebas de posicionamiento (centro vs lateral)
 5. Testing en diferentes dispositivos
 
-### Optimizaciones Futuras
+### Optimizaciones futuras
 - Cache de notificaciones para estadísticas
 - Animaciones de entrada/salida personalizadas
 - Soporte para notificaciones persistentes
 - Sistema de historial de notificaciones
-
-## 🎨 Color Palette (Dark Mode)
-
-```dart
-// Backgrounds
-Scaffold: #121212
-AppBar: #1B1B1B
-Cards: #1E1E1E
-Inputs: #2C2C2C
-
-// Text
-Primary: #FFFFFF
-Secondary: #B3B3B3
-Disabled: #808080
-
-// Accents
-Success: Green.shade600
-Error: Red.shade600
-Warning: Orange.shade600
-Info: Blue.shade600
-```
-
-## ✅ Validación
-
-- ✅ Flutter app compila sin errores
-- ✅ NotificationHelper importable en todas las páginas
-- ✅ Dark theme aplicado en main.dart
-- ✅ Notificaciones funcionan con diferentes duraciones
-- ✅ Documentación completa y actualizada
-
----
-
-**Última Actualización:** Hoy
-**Estado:** En Progreso (53% de migración completada)
-**Próximo Focus:** Completar migración de páginas admin y settings
+`
