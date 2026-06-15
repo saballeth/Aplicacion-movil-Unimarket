@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/constants/app_colors.dart';
 import 'package:unimarket/presentation/models/review_model.dart';
 import 'package:unimarket/presentation/viewmodels/review/review_cubit.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class ProductReviewPage extends StatefulWidget {
   final String productId;
@@ -41,20 +42,23 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
 
   void _submitReview() {
     if (_rating == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor selecciona una calificación')),
+      NotificationHelper.showWarning(
+        context: context,
+        message: 'Por favor selecciona una calificación',
       );
       return;
     }
     if (_titleController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor ingresa un título para tu reseña')),
+      NotificationHelper.showWarning(
+        context: context,
+        message: 'Por favor ingresa un título para tu reseña',
       );
       return;
     }
     if (_commentController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor ingresa un comentario')),
+      NotificationHelper.showWarning(
+        context: context,
+        message: 'Por favor ingresa un comentario',
       );
       return;
     }
@@ -85,7 +89,9 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
               child: const Text('Aceptar'),
             ),
           ],
@@ -118,7 +124,11 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
     return AppBar(
       title: const Text(
         'Calificar Producto',
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
       ),
       centerTitle: true,
       leading: IconButton(
@@ -184,7 +194,9 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
                       '${index + 1}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: index < _rating ? AppColors.primary : Colors.grey,
+                        color: index < _rating
+                            ? AppColors.primary
+                            : Colors.grey,
                       ),
                     ),
                   ],
@@ -197,7 +209,11 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
         if (_rating > 0)
           Text(
             _getRatingLabel(_rating),
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+              fontStyle: FontStyle.italic,
+            ),
           ),
       ],
     );
@@ -247,7 +263,10 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
             ),
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
           maxLines: 1,
         ),
@@ -267,7 +286,8 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
         TextField(
           controller: _commentController,
           decoration: InputDecoration(
-            hintText: 'Comparte tu experiencia con el producto. ¿Qué te gustó? ¿Qué no te gustó?',
+            hintText:
+                'Comparte tu experiencia con el producto. ¿Qué te gustó? ¿Qué no te gustó?',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.grey.shade300),
@@ -282,7 +302,10 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
             ),
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
           maxLines: 5,
         ),
@@ -298,7 +321,9 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: const Text(
           'Publicar Reseña',
@@ -309,10 +334,7 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
   }
 
   Widget _buildDivider() {
-    return Container(
-      height: 8,
-      color: Colors.grey.shade100,
-    );
+    return Container(height: 8, color: Colors.grey.shade100);
   }
 
   Widget _buildReviewsList() {
@@ -347,7 +369,10 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
                 padding: const EdgeInsets.all(16),
                 child: Text(
                   'Reseñas (${state.reviews.length})',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               ...state.reviews.map((review) => _buildReviewCard(review)),
@@ -385,7 +410,10 @@ class _ProductReviewPageState extends State<ProductReviewPage> {
             children: [
               Text(
                 review.userName,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
                 review.formattedDate,

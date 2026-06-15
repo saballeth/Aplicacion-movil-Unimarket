@@ -18,33 +18,59 @@ class BottomNavCustom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100,
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFF4B2AAD),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromRGBO(0, 0, 0, 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Stack(
-        alignment: Alignment.bottomCenter,
+        alignment: Alignment.center,
         children: [
-          // Purple bar
+          // Navigation items
           Container(
-            height: 70,
-            decoration: const BoxDecoration(
-              color: Color(0xFF4B2AAD),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
+            width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 90),
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _item(context, Icons.home_outlined, 'Inicio', 0),
-                _item(context, Icons.local_offer_outlined, 'Promos', 1),
-                const SizedBox(width: 50), // space for center button
-                _item(context, Icons.inventory_2_outlined, 'Pedidos', 3),
-                _item(context, Icons.favorite_border, 'Favoritos', 4),
+                Expanded(
+                  child: _item(context, Icons.home_outlined, 'Inicio', 0),
+                ),
+                Expanded(
+                  child: _item(
+                    context,
+                    Icons.local_offer_outlined,
+                    'Promos',
+                    1,
+                  ),
+                ),
+                const SizedBox(width: 72), // space for center button
+                Expanded(
+                  child: _item(
+                    context,
+                    Icons.inventory_2_outlined,
+                    'Pedidos',
+                    3,
+                  ),
+                ),
+                Expanded(
+                  child: _item(context, Icons.favorite_border, 'Favoritos', 4),
+                ),
               ],
             ),
           ),
-
           // Center cart button
           Positioned(
-            top: 0,
             child: GestureDetector(
               onTap: () {
                 if (onCartTap != null) onCartTap!();
@@ -59,7 +85,11 @@ class BottomNavCustom extends StatelessWidget {
                       color: Color(0xFFF5C542),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 36),
+                    child: const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.white,
+                      size: 36,
+                    ),
                   ),
                   if (cartCount > 0)
                     Container(
@@ -92,23 +122,36 @@ class BottomNavCustom extends StatelessWidget {
   Widget _item(BuildContext context, IconData icon, String label, int index) {
     final bool isActive = selectedIndex == index;
 
-    return GestureDetector(
-      onTap: () => onTap?.call(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: isActive ? const Color(0xFFF5C542) : Colors.white, size: 28),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: isActive ? const Color(0xFFF5C542) : Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onTap?.call(index),
+        splashColor: Colors.white.withOpacity(0.1),
+        highlightColor: Colors.white.withOpacity(0.05),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: isActive ? const Color(0xFFF5C542) : Colors.white,
+                size: 28,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isActive ? const Color(0xFFF5C542) : Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

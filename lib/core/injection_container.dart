@@ -7,8 +7,15 @@ import '../constants/app_constants.dart';
 
 import '../data/datasources/product_remote_data_source.dart';
 import '../data/repositories/product_repository_impl.dart';
+import '../data/repositories/address_repository_impl.dart';
+import '../data/repositories/order_repository_impl.dart';
 import '../domain/repositories/product_repository.dart';
+import '../domain/repositories/address_repository.dart';
+import '../domain/repositories/order_repository.dart';
 import '../domain/usecases/get_products_usecase.dart';
+import '../domain/usecases/get_addresses_usecase.dart';
+import '../domain/usecases/get_shipping_options_usecase.dart';
+import '../domain/usecases/create_order_usecase.dart';
 import '../presentation/viewmodels/product/product_cubit.dart';
 import '../presentation/viewmodels/addresses/addresses_viewmodel.dart';
 import '../presentation/viewmodels/onboarding/onboarding_cubit.dart';
@@ -31,6 +38,10 @@ import '../presentation/viewmodels/entrepreneur/documents_cubit.dart';
 import '../presentation/viewmodels/admin/admin_users_cubit.dart';
 import '../presentation/viewmodels/admin/admin_businesses_products_cubit.dart';
 import '../presentation/viewmodels/admin/reports_cubit.dart';
+import '../presentation/viewmodels/notifications/notifications_cubit.dart';
+import '../presentation/viewmodels/checkout/checkout_cubit.dart';
+import '../presentation/viewmodels/shipping/shipping_cubit.dart';
+import '../presentation/viewmodels/address_checkout/address_checkout_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -58,9 +69,16 @@ Future<void> init() async {
   sl.registerLazySingleton<ProductRepository>(
     () => ProductRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton<AddressRepository>(() => AddressRepositoryImpl());
+  sl.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl());
 
   //! Use Cases
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
+  sl.registerLazySingleton(() => GetAddressesUseCase(sl<AddressRepository>()));
+  sl.registerLazySingleton(
+    () => GetShippingOptionsUseCase(sl<OrderRepository>()),
+  );
+  sl.registerLazySingleton(() => CreateOrderUseCase(sl<OrderRepository>()));
 
   //! Bloc / Cubit
   sl.registerFactory(() => ProductCubit(sl()));
@@ -96,4 +114,24 @@ Future<void> init() async {
   sl.registerFactory(() => AdminBusinessesCubit());
   sl.registerFactory(() => AdminProductsCubit());
   sl.registerFactory(() => ReportsCubit());
+
+  // Notifications
+  sl.registerLazySingleton(() => NotificationsCubit());
+
+  // Checkout Flow
+  sl.registerFactory(
+    () => AddressCheckoutCubit(getAddressesUseCase: sl<GetAddressesUseCase>()),
+  );
+  sl.registerFactory(
+    () => ShippingCubit(
+      getShippingOptionsUseCase: sl<GetShippingOptionsUseCase>(),
+    ),
+  );
+  sl.registerFactory(
+    () => CheckoutCubit(
+      getAddressesUseCase: sl<GetAddressesUseCase>(),
+      getShippingOptionsUseCase: sl<GetShippingOptionsUseCase>(),
+      createOrderUseCase: sl<CreateOrderUseCase>(),
+    ),
+  );
 }

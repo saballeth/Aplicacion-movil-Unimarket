@@ -12,6 +12,7 @@ import 'package:unimarket/presentation/pages/promos/promos_page.dart';
 import 'package:unimarket/presentation/pages/dashboards/consumer_dashboard.dart';
 import 'package:unimarket/presentation/pages/dashboards/entrepreneur_dashboard.dart';
 import 'package:unimarket/presentation/pages/dashboards/admin_dashboard.dart';
+import 'package:unimarket/presentation/pages/notifications/notifications_page.dart';
 import '../widgets/bottom_nav_custom.dart';
 import 'package:unimarket/presentation/pages/cart/cart_page.dart';
 import 'package:unimarket/presentation/pages/favorites/favorites_page.dart';
@@ -22,11 +23,13 @@ import 'package:unimarket/presentation/viewmodels/profile/profile_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/profile/profile_state.dart';
 import 'package:unimarket/presentation/viewmodels/login/login_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/product/product_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/notifications/notifications_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/profile/app_preferences_controller.dart';
 import '../viewmodels/addresses/addresses_viewmodel.dart';
 import 'package:unimarket/presentation/viewmodels/product/product_item.dart';
 import 'package:unimarket/presentation/viewmodels/cart/cart_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/favorites/favorites_cubit.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -42,7 +45,9 @@ class _HomePageState extends State<HomePage> {
   final AddressesViewModel _addrVm = sl<AddressesViewModel>();
   late final AppPreferencesController _prefs;
   late final OrdersCubit _ordersCubit;
+  late final NotificationsCubit _notificationsCubit;
   int _pendingOrders = 0;
+  int _unreadNotifications = 0;
   late final ProfileCubit _profileCubit;
   String _userName = '';
 
@@ -58,6 +63,7 @@ class _HomePageState extends State<HomePage> {
     _prefs = sl<AppPreferencesController>();
     _prefs.addListener(_onPrefsChanged);
     _addrVm.addListener(_onAddressChanged);
+    _notificationsCubit = sl<NotificationsCubit>();
     _ordersCubit = OrdersCubit()..loadOrders();
     _ordersCubit.stream.listen((s) {
       if (s is OrdersLoaded) {
@@ -70,7 +76,18 @@ class _HomePageState extends State<HomePage> {
     _profileCubit = ProfileCubit();
     _profileCubit.loadProfile();
     _profileCubit.stream.listen((s) {
-      if (s is ProfileLoaded) setState(() => _userName = s.user.name);
+      if (s is ProfileLoaded) {
+        setState(() => _userName = s.user.name);
+        // Load notifications for the user
+        _notificationsCubit.loadNotifications(s.user.id, s.user.role);
+      }
+    });
+    // Listen to notifications updates
+    _notificationsCubit.stream.listen((state) {
+      if (state is NotificationsLoaded) {
+        final unread = state.notifications.where((n) => !n.isRead).length;
+        setState(() => _unreadNotifications = unread);
+      }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = sl<AuthCubit>();
@@ -107,6 +124,7 @@ class _HomePageState extends State<HomePage> {
         BlocProvider(create: (_) => sl<CartCubit>()),
         BlocProvider(create: (_) => sl<FavoritesCubit>()),
         BlocProvider(create: (_) => _profileCubit),
+        BlocProvider(create: (_) => _notificationsCubit),
       ],
       child: _buildScaffold(),
     );
@@ -140,54 +158,37 @@ class _HomePageState extends State<HomePage> {
             );
           },
         ),
-        leading: StreamBuilder<ProfileState>(
-          stream: _profileCubit.stream,
-          initialData: _profileCubit.state,
-          builder: (context, snapshot) {
-            if (snapshot.data is ProfileLoaded) {
-              final state = snapshot.data as ProfileLoaded;
-              // Admins see notifications icon only
-              if (state.user.role.isAdmin) {
-                return IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.notifications_none,
-                    color: Colors.black,
-                  ),
-                );
-              }
-            }
-            // Regular users see orders/notifications
-            return IconButton(
-              onPressed: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const OrdersPage())),
-              icon: Stack(
-                children: [
-                  const Icon(Icons.notifications_none, color: Colors.black),
-                  if (_pendingOrders > 0)
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '$_pendingOrders',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                          ),
-                        ),
+        leading: IconButton(
+          onPressed: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const NotificationsPage())),
+          icon: Stack(
+            children: [
+              const Icon(Icons.notifications_none, color: Colors.black),
+              if (_unreadNotifications > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      _unreadNotifications > 99
+                          ? '99+'
+                          : '$_unreadNotifications',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                ],
-              ),
-            );
-          },
+                  ),
+                ),
+            ],
+          ),
         ),
         actions: [
           IconButton(
@@ -263,11 +264,10 @@ class _HomePageState extends State<HomePage> {
               return const EntrepreneurDashboard();
             case UserRole.consumer:
               return const ConsumerDashboard();
-            default:
-              return const ConsumerDashboard();
           }
         }
-        return _buildHomePage();
+        // Show loading indicator while profile is being loaded
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -749,12 +749,10 @@ class _HomePageState extends State<HomePage> {
                             return ElevatedButton(
                               onPressed: () {
                                 context.read<CartCubit>().addToCart(product);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
+                                NotificationHelper.showSuccess(
+                                  context: context,
+                                  message:
                                       '${product.name} agregado al carrito',
-                                    ),
-                                  ),
                                 );
                               },
                               style: ElevatedButton.styleFrom(
@@ -912,11 +910,10 @@ class _HomePageState extends State<HomePage> {
                     child: ElevatedButton(
                       onPressed: () {
                         // Navigate to payment methods page with product price
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${item.name} agregado al carrito'),
-                            duration: const Duration(seconds: 2),
-                          ),
+                        NotificationHelper.showSuccess(
+                          context: context,
+                          message: '${item.name} agregado al carrito',
+                          duration: const Duration(seconds: 2),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -969,38 +966,23 @@ class _HomePageState extends State<HomePage> {
         }
 
         // Regular users see the full navigation bar
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color.fromRGBO(0, 0, 0, 0.08),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: BlocBuilder<CartCubit, CartState>(
-              builder: (context, cartState) {
-                final cartCount = cartState is CartLoaded
-                    ? cartState.totalQuantity
-                    : 0;
-                return BottomNavCustom(
-                  selectedIndex: _currentIndex,
-                  cartCount: cartCount,
-                  onTap: (index) {
-                    setState(() => _currentIndex = index);
-                    if (index == 0 && _prefs.autoPlay) {
-                      context.read<ProductCubit>().loadProducts();
-                    }
-                  },
-                  onCartTap: () => setState(() => _currentIndex = 2),
-                );
+        return BlocBuilder<CartCubit, CartState>(
+          builder: (context, cartState) {
+            final cartCount = cartState is CartLoaded
+                ? cartState.totalQuantity
+                : 0;
+            return BottomNavCustom(
+              selectedIndex: _currentIndex,
+              cartCount: cartCount,
+              onTap: (index) {
+                setState(() => _currentIndex = index);
+                if (index == 0 && _prefs.autoPlay) {
+                  context.read<ProductCubit>().loadProducts();
+                }
               },
-            ),
-          ),
+              onCartTap: () => setState(() => _currentIndex = 2),
+            );
+          },
         );
       },
     );

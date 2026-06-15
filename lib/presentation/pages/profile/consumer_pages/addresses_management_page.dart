@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/core/injection_container.dart';
 import 'package:unimarket/presentation/viewmodels/addresses/addresses_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/addresses/addresses_state.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class AddressesManagementPage extends StatelessWidget {
   const AddressesManagementPage({super.key});
@@ -22,26 +23,20 @@ class AddressesManagementPage extends StatelessWidget {
         body: BlocConsumer<AddressesCubit, AddressesState>(
           listener: (context, state) {
             if (state is AddressError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
+              NotificationHelper.showError(
+                context: context,
+                message: state.message,
               );
             } else if (state is AddressAdded ||
                 state is AddressUpdated ||
                 state is AddressDeleted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    state is AddressAdded
-                        ? 'Dirección agregada'
-                        : state is AddressUpdated
-                        ? 'Dirección actualizada'
-                        : 'Dirección eliminada',
-                  ),
-                  backgroundColor: Colors.green,
-                ),
+              NotificationHelper.showSuccess(
+                context: context,
+                message: state is AddressAdded
+                    ? 'Dirección agregada'
+                    : state is AddressUpdated
+                    ? 'Dirección actualizada'
+                    : 'Dirección eliminada',
               );
               // Reload addresses after any action
               context.read<AddressesCubit>().loadAddresses();

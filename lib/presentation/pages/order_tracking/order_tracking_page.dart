@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:unimarket/core/injection_container.dart';
 import '../../viewmodels/order_tracking/order_tracking_viewmodel.dart';
 import 'package:unimarket/presentation/viewmodels/profile/order_preferences_controller.dart';
+import 'package:unimarket/domain/entities/order_entity.dart';
+import 'package:unimarket/domain/entities/address_entity.dart';
+import 'package:unimarket/domain/entities/shipping_option_entity.dart';
 import '../order_confirmation/order_confirmation_page.dart';
 
 class OrderTrackingPage extends StatefulWidget {
@@ -119,7 +122,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: vm.isDeliverySelected ? const Color(0xFF4B2AAD) : Colors.grey.shade200,
+                  color: vm.isDeliverySelected
+                      ? const Color(0xFF4B2AAD)
+                      : Colors.grey.shade200,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(12),
                     bottomLeft: Radius.circular(12),
@@ -131,7 +136,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: vm.isDeliverySelected ? Colors.white : Colors.black87,
+                      color: vm.isDeliverySelected
+                          ? Colors.white
+                          : Colors.black87,
                     ),
                   ),
                 ),
@@ -145,7 +152,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: !vm.isDeliverySelected ? const Color(0xFF4B2AAD) : Colors.grey.shade200,
+                  color: !vm.isDeliverySelected
+                      ? const Color(0xFF4B2AAD)
+                      : Colors.grey.shade200,
                   borderRadius: const BorderRadius.only(
                     topRight: Radius.circular(12),
                     bottomRight: Radius.circular(12),
@@ -157,7 +166,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: !vm.isDeliverySelected ? Colors.white : Colors.black87,
+                      color: !vm.isDeliverySelected
+                          ? Colors.white
+                          : Colors.black87,
                     ),
                   ),
                 ),
@@ -178,26 +189,16 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.map_outlined,
-                  size: 80,
-                  color: Colors.grey,
-                ),
+                const Icon(Icons.map_outlined, size: 80, color: Colors.grey),
                 const SizedBox(height: 16),
                 Text(
                   'Mapa de seguimiento',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey.shade700,
-                  ),
+                  style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Mostrando ruta hacia tu ubicación',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
               ],
             ),
@@ -212,7 +213,11 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           Positioned(
             top: 200,
             left: 150,
-            child: _buildMapMarker('Jeikol Pizza', Icons.restaurant, Colors.red),
+            child: _buildMapMarker(
+              'Jeikol Pizza',
+              Icons.restaurant,
+              Colors.red,
+            ),
           ),
 
           Positioned(
@@ -239,17 +244,13 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: const Color.fromRGBO(0,0,0,0.12),
+                color: const Color.fromRGBO(0, 0, 0, 0.12),
                 blurRadius: 6,
                 spreadRadius: 2,
               ),
             ],
           ),
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 24,
-          ),
+          child: Icon(icon, color: Colors.white, size: 24),
         ),
         const SizedBox(height: 4),
         Container(
@@ -259,7 +260,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: const Color.fromRGBO(0,0,0,0.12),
+                color: const Color.fromRGBO(0, 0, 0, 0.12),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -267,10 +268,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           ),
           child: Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -328,21 +326,29 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               width: 20,
               height: 20,
               decoration: BoxDecoration(
-                color: step.isCompleted ? const Color(0xFF4B2AAD) : Colors.grey.shade300,
+                color: step.isCompleted
+                    ? const Color(0xFF4B2AAD)
+                    : Colors.grey.shade300,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: step.isActive ? const Color(0xFF4B2AAD) : Colors.transparent,
+                  color: step.isActive
+                      ? const Color(0xFF4B2AAD)
+                      : Colors.transparent,
                   width: 2,
                 ),
               ),
-              child: step.isCompleted ? const Icon(Icons.check, size: 12, color: Colors.white) : null,
+              child: step.isCompleted
+                  ? const Icon(Icons.check, size: 12, color: Colors.white)
+                  : null,
             ),
 
             if (index < totalSteps - 1)
               Container(
                 width: 2,
                 height: 40,
-                color: step.isCompleted ? const Color(0xFF4B2AAD) : Colors.grey.shade300,
+                color: step.isCompleted
+                    ? const Color(0xFF4B2AAD)
+                    : Colors.grey.shade300,
               ),
           ],
         ),
@@ -359,7 +365,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: step.isActive ? Colors.black87 : Colors.grey.shade600,
+                    color: step.isActive
+                        ? Colors.black87
+                        : Colors.grey.shade600,
                   ),
                 ),
 
@@ -367,7 +375,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                 step.subtitle,
                 style: TextStyle(
                   fontSize: 14,
-                  color: step.isActive ? Colors.grey.shade700 : Colors.grey.shade500,
+                  color: step.isActive
+                      ? Colors.grey.shade700
+                      : Colors.grey.shade500,
                 ),
               ),
 
@@ -389,7 +399,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           onPressed: () {
             // Navigate to full-screen confirmation
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const OrderConfirmationPage()),
+              MaterialPageRoute(
+                builder: (_) => OrderConfirmationPage(order: _buildMockOrder()),
+              ),
             );
           },
           style: ElevatedButton.styleFrom(
@@ -401,10 +413,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           ),
           child: const Text(
             'Confirmar',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
         ),
       ),
@@ -412,6 +421,43 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
   }
 
   // Bottom navigation replaced by shared BottomNavCustom
+
+  OrderEntity _buildMockOrder() {
+    return OrderEntity(
+      id: 'ORD-${DateTime.now().millisecondsSinceEpoch}',
+      userId: 'user_123',
+      storeId: 'store_001',
+      storeName: 'UNIMARKET Store',
+      items: const [],
+      deliveryAddress: AddressEntity(
+        id: '1',
+        userId: 'user_123',
+        fullName: 'Juan Pérez',
+        phone: '3001234567',
+        street: 'Calle 45 #23-67',
+        city: 'Bogotá',
+        state: 'Cundinamarca',
+        zipCode: '110111',
+        country: 'Colombia',
+        isDefault: true,
+        createdAt: DateTime.now(),
+      ),
+      shippingOption: const ShippingOptionEntity(
+        id: '1',
+        name: 'Envío Estándar',
+        description: 'Entrega en 5-7 días',
+        cost: 15000,
+        estimatedDays: 6,
+      ),
+      subtotal: 0,
+      shippingCost: 15000,
+      taxAmount: 0,
+      totalAmount: 15000,
+      status: OrderStatus.pending,
+      paymentMethod: 'credit_card',
+      createdAt: DateTime.now(),
+    );
+  }
 }
 
 class RoutePainter extends CustomPainter {
@@ -425,12 +471,24 @@ class RoutePainter extends CustomPainter {
 
     final path = Path();
     path.moveTo(0, 0);
-    path.quadraticBezierTo(size.width * 0.3, size.height * 0.3, size.width * 0.7, size.height * 0.5);
-    path.quadraticBezierTo(size.width * 0.9, size.height * 0.7, size.width, size.height);
+    path.quadraticBezierTo(
+      size.width * 0.3,
+      size.height * 0.3,
+      size.width * 0.7,
+      size.height * 0.5,
+    );
+    path.quadraticBezierTo(
+      size.width * 0.9,
+      size.height * 0.7,
+      size.width,
+      size.height,
+    );
 
     canvas.drawPath(path, paint);
 
-    final dotPaint = Paint()..color = const Color(0xFF4B2AAD)..style = PaintingStyle.fill;
+    final dotPaint = Paint()
+      ..color = const Color(0xFF4B2AAD)
+      ..style = PaintingStyle.fill;
 
     canvas.drawCircle(const Offset(20, 5), 4, dotPaint);
     canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.4), 4, dotPaint);

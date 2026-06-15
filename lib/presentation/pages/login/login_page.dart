@@ -8,8 +8,11 @@ import '../../viewmodels/product/product_cubit.dart';
 import '../home_page.dart';
 import 'package:unimarket/core/injection_container.dart';
 import '../../viewmodels/registration/registration_cubit.dart';
+import '../../../core/utils/responsive_helper.dart';
+import '../../../core/utils/responsive_constants.dart';
 import 'package:unimarket/presentation/pages/registration/registration_page.dart';
 import 'package:unimarket/presentation/pages/password_recovery/password_recovery_page.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,14 +36,12 @@ class _LoginPageState extends State<LoginPage> {
           child: BlocConsumer<LoginCubit, LoginState>(
             listener: (context, state) async {
               if (state is LoginFailure) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(state.message)));
+                NotificationHelper.showError(
+                  context: context,
+                  message: state.message,
+                );
               }
               if (state is LoginSuccess) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('¡Bienvenido!')));
                 // Attempt to authenticate via AuthCubit (mocked test credentials)
                 await sl<AuthCubit>().login(
                   _emailController.text.trim(),
@@ -48,6 +49,15 @@ class _LoginPageState extends State<LoginPage> {
                 );
                 if (!context.mounted) return;
                 if (sl<AuthCubit>().isAuthenticated()) {
+                  final user = sl<AuthCubit>().currentUser;
+                  final welcomeMessage = _getWelcomeMessage(user?.role.toString() ?? '');
+                  
+                  NotificationHelper.showSuccess(
+                    context: context,
+                    message: welcomeMessage,
+                    duration: const Duration(seconds: 2),
+                  );
+                  
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (_) => BlocProvider(
@@ -57,177 +67,275 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Credenciales inválidas. Usa 1234 / 1234'),
-                    ),
+                  NotificationHelper.showError(
+                    context: context,
+                    message: 'Credenciales inválidas. Usa 1234 / 1234',
                   );
                 }
               }
             },
             builder: (context, state) {
               final isLoading = state is LoginLoading;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 20),
-                  Text(
-                    'Bienvenido!',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue[900],
-                    ),
-                  ),
-                  const SizedBox(height: 60),
-
-                  _buildInputField(
-                    label: 'Usuario',
-                    hintText: '1234',
-                    controller: _emailController,
-                    keyboardType: TextInputType.text,
-                    prefixIcon: Icons.person_outline,
-                  ),
-                  const SizedBox(height: 24),
-                  _buildInputField(
-                    label: 'Contraseña',
-                    hintText: 'Ingresa tu contraseña',
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    prefixIcon: Icons.lock_outline,
-                    suffixIcon: IconButton(
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Colors.grey,
+              final screenHeight = ResponsiveHelper.getScreenHeight(context);
+              final isMobile = ResponsiveHelper.isMobile(context);
+              final titleFontSize = ResponsiveHelper.getFontSize(
+                context,
+                mobileSize: ResponsiveConstants.font2XLarge,
+              );
+              final labelFontSize = ResponsiveHelper.getFontSize(
+                context,
+                mobileSize: ResponsiveConstants.fontMedium,
+              );
+              
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: screenHeight - 100),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: ResponsiveHelper.getPadding(
+                          context,
+                          mobilePadding: ResponsiveConstants.paddingLarge,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _navigateToPasswordRecovery,
-                      style: TextButton.styleFrom(
-                        minimumSize: const Size(88, 44),
-                      ),
-                      child: Text(
-                        'Olvidaste tu contraseña?',
+                      Text(
+                        '¡Bienvenido!',
                         style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.blue[700],
-                          fontWeight: FontWeight.w500,
+                          fontSize: titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[900],
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  // Credenciales de prueba para acceso rápido
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Credenciales de prueba:',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey[600]),
-                          textAlign: TextAlign.center,
+                      SizedBox(
+                        height: ResponsiveHelper.getPadding(
+                          context,
+                          mobilePadding: ResponsiveConstants.padding2XLarge,
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Consumidor: 1234 / 1234\nEmprendedor: emp / emp\nAdministrador: admin / admin',
-                          style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () => context.read<LoginCubit>().login(
-                              _emailController.text,
-                              _passwordController.text,
-                            ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[800],
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      // Input fields container con ancho limitado
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: ResponsiveHelper.getMaxContentWidth(context),
                         ),
-                        elevation: 2,
-                        shadowColor: Colors.blue.withAlpha((0.3 * 255).round()),
-                      ),
-                      child: isLoading
-                          ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
+                        child: Column(
+                          children: [
+                            _buildInputField(
+                              label: 'Usuario',
+                              hintText: '1234',
+                              controller: _emailController,
+                              keyboardType: TextInputType.text,
+                              prefixIcon: Icons.person_outline,
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getPadding(
+                                context,
+                                mobilePadding: ResponsiveConstants.paddingLarge,
+                              ),
+                            ),
+                            _buildInputField(
+                              label: 'Contraseña',
+                              hintText: 'Ingresa tu contraseña',
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              prefixIcon: Icons.lock_outline,
+                              suffixIcon: IconButton(
+                                onPressed: () =>
+                                    setState(() => _obscurePassword = !_obscurePassword),
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.grey,
                                 ),
                               ),
-                            )
-                          : const Text(
-                              'Iniciar Sesión',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getPadding(
+                                context,
+                                mobilePadding: ResponsiveConstants.paddingMedium,
                               ),
                             ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Divider(color: Colors.grey[300], thickness: 1),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'O',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: _navigateToPasswordRecovery,
+                                style: TextButton.styleFrom(
+                                  minimumSize: const Size(88, 44),
+                                ),
+                                child: Text(
+                                  '¿Olvidaste tu contraseña?',
+                                  style: TextStyle(
+                                    fontSize: labelFontSize,
+                                    color: Colors.blue[700],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getPadding(
+                                context,
+                                mobilePadding: ResponsiveConstants.padding2XLarge,
+                              ),
+                            ),
+                            // Credenciales de prueba
+                            if (isMobile)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: ResponsiveHelper.getPadding(
+                                    context,
+                                    mobilePadding: ResponsiveConstants.paddingMedium,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Credenciales de prueba:',
+                                      style: TextStyle(
+                                        fontSize: labelFontSize * 0.85,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey[600],
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(
+                                      height: ResponsiveHelper.getPadding(
+                                        context,
+                                        mobilePadding: ResponsiveConstants.paddingSmall,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Consumidor: 1234 / 1234\nEmprendedor: emp / emp\nAdmin: admin / admin',
+                                      style: TextStyle(
+                                        fontSize: labelFontSize * 0.8,
+                                        color: Colors.grey[600],
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                            // Login button
+                            SizedBox(
+                              width: double.infinity,
+                              height: ResponsiveHelper.getButtonHeight(context),
+                              child: ElevatedButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : () => context.read<LoginCubit>().login(
+                                          _emailController.text,
+                                          _passwordController.text,
+                                        ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue[800],
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      ResponsiveConstants.radiusLarge,
+                                    ),
+                                  ),
+                                  elevation: 2,
+                                  shadowColor: Colors.blue.withAlpha((0.3 * 255).round()),
+                                ),
+                                child: isLoading
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                    : Text(
+                                        'Iniciar Sesión',
+                                        style: TextStyle(
+                                          fontSize: labelFontSize,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getPadding(
+                                context,
+                                mobilePadding: ResponsiveConstants.padding2XLarge,
+                              ),
+                            ),
+                            // Divider con texto
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Divider(
+                                    color: Colors.grey[300],
+                                    thickness: 1,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: ResponsiveHelper.getPadding(
+                                      context,
+                                      mobilePadding: ResponsiveConstants.paddingMedium,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'O',
+                                    style: TextStyle(
+                                      fontSize: labelFontSize,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Divider(
+                                    color: Colors.grey[300],
+                                    thickness: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getPadding(
+                                context,
+                                mobilePadding: ResponsiveConstants.padding2XLarge,
+                              ),
+                            ),
+                            // Signup link
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              children: [
+                                Text(
+                                  '¿No tienes cuenta? ',
+                                  style: TextStyle(
+                                    fontSize: labelFontSize,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: _navigateToRegistration,
+                                  child: Text(
+                                    'Regístrate',
+                                    style: TextStyle(
+                                      fontSize: labelFontSize,
+                                      color: Colors.blue[700],
+                                      fontWeight: FontWeight.w600,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ),
-                      Expanded(
-                        child: Divider(color: Colors.grey[300], thickness: 1),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '¿No tienes cuenta?',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                      ),
-                      const SizedBox(width: 4),
-                      GestureDetector(
-                        onTap: _navigateToRegistration,
-                        child: Text(
-                          'Registrarte',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.blue[700],
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               );
             },
           ),
@@ -316,6 +424,17 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 
+
+  String _getWelcomeMessage(String roleString) {
+    if (roleString.contains('consumer')) {
+      return '¡Bienvenido a UniMarket! 🛍️ Disfruta comprando con nosotros';
+    } else if (roleString.contains('entrepreneur')) {
+      return '¡Hola emprendedor! 📈 Gestiona tu negocio con éxito';
+    } else if (roleString.contains('admin')) {
+      return '¡Bienvenido Admin! ⚙️ Sistema listo para administrar';
+    }
+    return '¡Bienvenido a UniMarket!';
+  }
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(

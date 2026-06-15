@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/presentation/viewmodels/cart/cart_cubit.dart';
-import 'package:unimarket/presentation/pages/addresses/address_selection_page.dart';
+import 'package:unimarket/presentation/pages/checkout/checkout_page.dart';
 import 'package:unimarket/core/injection_container.dart';
 
 class CartPage extends StatelessWidget {
@@ -303,10 +303,18 @@ class CartPage extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
+                            // TODO: Obtener userId de ProfileCubit o AuthCubit
+                            const userId = 'user_123';
+                            const storeId = 'store_001';
+                            const storeName = 'UNIMARKET Store';
+
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) => AddressSelectionPage(
-                                  totalAmount: state.total,
+                                builder: (_) => CheckoutPage(
+                                  cartItems: state.items,
+                                  storeId: storeId,
+                                  storeName: storeName,
+                                  userId: userId,
                                 ),
                               ),
                             );

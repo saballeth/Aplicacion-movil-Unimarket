@@ -35,7 +35,7 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
@@ -53,28 +53,8 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
         children: [
           SwitchListTile(
             title: Text(
-              'Modo oscuro',
-              style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black,
-              ),
-            ),
-            subtitle: Text(
-              'Activa el tema oscuro de la aplicación',
-              style: TextStyle(
-                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-              ),
-            ),
-            value: prefs.darkMode,
-            onChanged: (val) => prefs.toggleDarkMode(val),
-            activeThumbColor: const Color(0xFF4B2AAD),
-          ),
-          Divider(color: isDarkMode ? Colors.grey[700] : Colors.grey[300]),
-          SwitchListTile(
-            title: Text(
               'Reproducción automática',
-              style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black,
-              ),
+              style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
             ),
             subtitle: Text(
               'Recarga el catálogo automáticamente al volver a Inicio',
@@ -90,9 +70,7 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
           SwitchListTile(
             title: Text(
               'Mantener historial de búsqueda',
-              style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black,
-              ),
+              style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
             ),
             subtitle: Text(
               'Guarda tus búsquedas anteriores',
@@ -108,9 +86,7 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
           SwitchListTile(
             title: Text(
               'Recomendaciones personalizadas',
-              style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black,
-              ),
+              style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
             ),
             subtitle: Text(
               'Recibe sugerencias basadas en tus gustos',
@@ -126,9 +102,7 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
           ListTile(
             title: Text(
               'Idioma',
-              style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black,
-              ),
+              style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
             ),
             subtitle: Text(
               prefs.languageLabel,
@@ -141,7 +115,9 @@ class _AppPreferencesPageState extends State<AppPreferencesPage> {
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                  backgroundColor: isDarkMode
+                      ? const Color(0xFF1E1E1E)
+                      : Colors.white,
                   title: Text(
                     'Selecciona un idioma',
                     style: TextStyle(

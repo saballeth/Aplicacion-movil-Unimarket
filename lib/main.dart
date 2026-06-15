@@ -15,10 +15,10 @@ import 'presentation/viewmodels/product/product_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Inicializar dependencias
   await di.init();
-  
+
   // Obtener shared preferences
   final preferences = await SharedPreferences.getInstance();
   final appPreferences = AppPreferencesController(preferences);
@@ -30,7 +30,7 @@ void main() async {
   final privacySecurity = PrivacySecurityController(preferences);
   await privacySecurity.load();
   di.sl.registerSingleton<PrivacySecurityController>(privacySecurity);
-  
+
   runApp(
     MyApp(
       preferences: preferences,
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
   final AppPreferencesController appPreferences;
   final OrderPreferencesController orderPreferences;
   final PrivacySecurityController privacySecurity;
-  
+
   const MyApp({
     super.key,
     required this.preferences,
@@ -62,20 +62,13 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => di.sl<ProductCubit>()..loadProducts(),
         ),
-        BlocProvider(
-          create: (context) => OnboardingCubit(preferences),
-        ),
+        BlocProvider(create: (context) => OnboardingCubit(preferences)),
       ],
       child: AnimatedBuilder(
-        animation: Listenable.merge([
-          appPreferences,
-          orderPreferences,
-          privacySecurity,
-        ]),
+        animation: Listenable.merge([orderPreferences, privacySecurity]),
         builder: (context, _) {
           return MaterialApp(
             title: 'UNIMARKET',
-            themeMode: appPreferences.themeMode,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
                 seedColor: AppColors.primary,
@@ -83,33 +76,33 @@ class MyApp extends StatelessWidget {
               ),
               useMaterial3: true,
               scaffoldBackgroundColor: Colors.white,
+              cardColor: Colors.white,
+              dialogBackgroundColor: Colors.white,
               appBarTheme: const AppBarTheme(
                 elevation: 0,
                 centerTitle: true,
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black,
+                surfaceTintColor: Colors.white,
               ),
-            ),
-            darkTheme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: AppColors.primary,
-                brightness: Brightness.dark,
+              snackBarTheme: SnackBarThemeData(
+                backgroundColor: Colors.grey.shade800,
+                contentTextStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              useMaterial3: true,
-              scaffoldBackgroundColor: const Color(0xFF121212),
-              appBarTheme: const AppBarTheme(
-                elevation: 0,
-                centerTitle: true,
-                backgroundColor: Color(0xFF1B1B1B),
-                foregroundColor: Colors.white,
+              textTheme: const TextTheme(
+                bodyLarge: TextStyle(color: Colors.black87),
+                bodyMedium: TextStyle(color: Colors.black87),
+                bodySmall: TextStyle(color: Colors.black54),
               ),
             ),
             locale: appPreferences.locale,
-            supportedLocales: const [
-              Locale('es'),
-              Locale('en'),
-              Locale('pt'),
-            ],
+            supportedLocales: const [Locale('es'), Locale('en'), Locale('pt')],
             localizationsDelegates: [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -122,14 +115,14 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildHomeScreen() {
     return BlocBuilder<OnboardingCubit, OnboardingState>(
       builder: (context, state) {
         if (state is OnboardingLoading) {
           return const SplashScreen();
         }
-        
+
         if (state is OnboardingComplete) {
           if (!state.hasSeenOnboarding) {
             return const OnboardingPage();
@@ -137,7 +130,7 @@ class MyApp extends StatelessWidget {
             return const HomePage();
           }
         }
-        
+
         return const SplashScreen();
       },
     );
@@ -152,9 +145,7 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.purpleGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.purpleGradient),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -176,9 +167,7 @@ class SplashScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              const CircularProgressIndicator(
-                color: Colors.white,
-              ),
+              const CircularProgressIndicator(color: Colors.white),
             ],
           ),
         ),

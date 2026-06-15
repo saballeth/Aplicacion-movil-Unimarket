@@ -25,6 +25,8 @@ dependencies:
   # Datos
   dio: ^5.4.0
   shared_preferences: ^2.2.2
+  sqflite: ^2.3.0
+  path: ^1.8.3
 
   # UI y Utilidades
   cached_network_image: ^3.3.0

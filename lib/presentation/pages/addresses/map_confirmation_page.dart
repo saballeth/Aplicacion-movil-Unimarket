@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../viewmodels/addresses/map_confirmation_viewmodel.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class MapConfirmationPage extends StatefulWidget {
   final String initialAddress;
@@ -238,8 +239,9 @@ class _MapConfirmationPageState extends State<MapConfirmationPage> {
         onPressed: () {
           final text = _addressController.text.trim();
           if (text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Por favor ingresa la dirección')),
+            NotificationHelper.showWarning(
+              context: context,
+              message: 'Por favor ingresa la dirección',
             );
             return;
           }

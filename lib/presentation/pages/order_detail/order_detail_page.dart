@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../models/order_model.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class OrderDetailPage extends StatefulWidget {
   final OrderModel order;
   final VoidCallback? onBack;
 
-  const OrderDetailPage({
-    super.key,
-    required this.order,
-    this.onBack,
-  });
+  const OrderDetailPage({super.key, required this.order, this.onBack});
 
   @override
   State<OrderDetailPage> createState() => _OrderDetailPageState();
@@ -27,17 +24,14 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed:
-              widget.onBack ?? () => Navigator.pop(context),
+          onPressed: widget.onBack ?? () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             const SizedBox(height: 10),
 
             /// Nombre tienda
@@ -78,8 +72,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: const [
-                    Icon(Icons.star,
-                        color: Colors.yellow, size: 18),
+                    Icon(Icons.star, color: Colors.yellow, size: 18),
                     SizedBox(width: 6),
                     Text(
                       "Calificar",
@@ -98,10 +91,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             /// Estado
             const Text(
               "Estado de pedido",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 6),
@@ -120,10 +110,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             /// Productos
             const Text(
               "Productos",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 15),
@@ -139,10 +126,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             /// Resumen
             const Text(
               "Resumen de pago",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 15),
@@ -155,11 +139,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
             const SizedBox(height: 15),
 
-            _buildPriceRow(
-              "Total de pago",
-              "8.000",
-              isTotal: true,
-            ),
+            _buildPriceRow("Total de pago", "8.000", isTotal: true),
           ],
         ),
       ),
@@ -189,8 +169,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   const SizedBox(height: 10),
 
                   Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(5, (index) {
                       return IconButton(
                         onPressed: () {
@@ -199,9 +178,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                           });
                         },
                         icon: Icon(
-                          index < tempRating
-                              ? Icons.star
-                              : Icons.star_border,
+                          index < tempRating ? Icons.star : Icons.star_border,
                           color: Colors.amber,
                           size: 32,
                         ),
@@ -212,27 +189,21 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   if (tempRating > 0)
                     Text(
                       "$tempRating estrella${tempRating > 1 ? "s" : ""}",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                 ],
               ),
               actionsAlignment: MainAxisAlignment.center,
               actions: [
                 TextButton(
-                  onPressed: () =>
-                      Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context),
                   child: const Text("Cancelar"),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFF4B2CA3),
+                    backgroundColor: const Color(0xFF4B2CA3),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   onPressed: tempRating == 0
@@ -244,12 +215,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
                           Navigator.pop(context);
 
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  "Calificaste con $rating estrellas ⭐"),
-                            ),
+                          NotificationHelper.showSuccess(
+                            context: context,
+                            message: "Calificaste con $rating estrellas ⭐",
                           );
                         },
                   child: const Text("Enviar"),
@@ -270,73 +238,51 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           height: 60,
           decoration: BoxDecoration(
             color: Colors.amber.withOpacity(0.1),
-            borderRadius:
-                BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            widget.order.icon,
-            color: Colors.amber,
-            size: 28,
-          ),
+          child: Icon(widget.order.icon, color: Colors.amber, size: 28),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 "Pizza de chorizo",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 4),
               Text(
                 widget.order.storeName,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
             ],
           ),
         ),
         const Text(
           "2",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ],
     );
   }
 
-  Widget _buildPriceRow(
-      String label, String value,
-      {bool isTotal = false}) {
+  Widget _buildPriceRow(String label, String value, {bool isTotal = false}) {
     return Row(
-      mainAxisAlignment:
-          MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
           style: TextStyle(
             fontSize: isTotal ? 18 : 16,
-            fontWeight: isTotal
-                ? FontWeight.bold
-                : FontWeight.normal,
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
           ),
         ),
         Text(
           "\$ $value",
           style: TextStyle(
             fontSize: isTotal ? 18 : 16,
-            fontWeight: isTotal
-                ? FontWeight.bold
-                : FontWeight.normal,
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ],

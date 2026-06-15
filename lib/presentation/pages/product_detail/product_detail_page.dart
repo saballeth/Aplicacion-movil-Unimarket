@@ -17,7 +17,10 @@ class ProductDetailPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text(product.name, style: const TextStyle(color: Colors.black)),
+          title: Text(
+            product.name,
+            style: const TextStyle(color: Colors.black),
+          ),
           backgroundColor: Colors.white,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.black),
@@ -38,52 +41,114 @@ class ProductDetailPage extends StatelessWidget {
                   ),
                   child: product.imageUrl.isNotEmpty
                       ? Image.network(product.imageUrl, fit: BoxFit.cover)
-                      : const Icon(Icons.image_not_supported, size: 80, color: Colors.grey),
+                      : const Icon(
+                          Icons.image_not_supported,
+                          size: 80,
+                          color: Colors.grey,
+                        ),
                 ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(product.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                    Row(children: [const Icon(Icons.star, color: Colors.amber), Text(product.rating.toString())]),
+                    Text(
+                      product.name,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber),
+                        Text(product.rating.toString()),
+                      ],
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(product.description, style: const TextStyle(fontSize: 16, color: Colors.black54)),
+                Text(
+                  product.description,
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Text('\$${product.finalPrice.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),
+                    Text(
+                      '\$${product.finalPrice.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
                     const SizedBox(width: 8),
                     if (product.isOnSale)
-                      Text('\$${product.price.toStringAsFixed(2)}', style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey)),
+                      Text(
+                        '\$${product.price.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          decoration: TextDecoration.lineThrough,
+                          color: Colors.grey,
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 24),
-                Text('Cantidad', style: TextStyle(fontSize: 14, color: Colors.grey[800])),
+                Text(
+                  'Cantidad',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+                ),
                 const SizedBox(height: 8),
                 BlocBuilder<ProductDetailCubit, ProductDetailState>(
                   builder: (context, state) {
-                    final qty = state is ProductDetailInitial ? state.quantity : 1;
+                    final qty = state is ProductDetailInitial
+                        ? state.quantity
+                        : 1;
                     final isLoading = state is ProductDetailUpdating;
                     return Row(
                       children: [
                         Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey[300]!)),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
                           child: Row(
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.remove),
-                                onPressed: isLoading ? null : () => context.read<ProductDetailCubit>().decrement(),
+                                onPressed: isLoading
+                                    ? null
+                                    : () => context
+                                          .read<ProductDetailCubit>()
+                                          .decrement(),
                                 padding: const EdgeInsets.all(4),
-                                constraints: const BoxConstraints(minHeight: 40, minWidth: 40),
+                                constraints: const BoxConstraints(
+                                  minHeight: 40,
+                                  minWidth: 40,
+                                ),
                               ),
-                              SizedBox(width: 30, child: Text(qty.toString(), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold))),
+                              SizedBox(
+                                width: 30,
+                                child: Text(
+                                  qty.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                               IconButton(
                                 icon: const Icon(Icons.add),
-                                onPressed: isLoading ? null : () => context.read<ProductDetailCubit>().increment(),
+                                onPressed: isLoading
+                                    ? null
+                                    : () => context
+                                          .read<ProductDetailCubit>()
+                                          .increment(),
                                 padding: const EdgeInsets.all(4),
-                                constraints: const BoxConstraints(minHeight: 40, minWidth: 40),
+                                constraints: const BoxConstraints(
+                                  minHeight: 40,
+                                  minWidth: 40,
+                                ),
                               ),
                             ],
                           ),
@@ -91,9 +156,35 @@ class ProductDetailPage extends StatelessWidget {
                         const SizedBox(width: 16),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: isLoading ? null : () => context.read<ProductDetailCubit>().addToCart(product),
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[800], padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                            child: isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Agregar al carrito', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                            onPressed: isLoading
+                                ? null
+                                : () => context
+                                      .read<ProductDetailCubit>()
+                                      .addToCart(product),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue[800],
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Agregar al carrito',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
@@ -101,7 +192,10 @@ class ProductDetailPage extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 16),
-                Text('Stock disponible: ${product.stock}', style: const TextStyle(color: Colors.grey)),
+                Text(
+                  'Stock disponible: ${product.stock}',
+                  style: const TextStyle(color: Colors.grey),
+                ),
               ],
             ),
           ),

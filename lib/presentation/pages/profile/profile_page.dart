@@ -19,6 +19,7 @@ import 'admin_pages/manage_users_page.dart';
 import 'admin_pages/manage_business_page.dart';
 import 'admin_pages/manage_products_page.dart';
 import 'admin_pages/reports_page.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -673,8 +674,9 @@ class _ProfileView extends StatelessWidget {
     switch (title) {
       // Consumer-specific options
       case 'Mis pedidos':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Abriendo mis pedidos...')),
+        NotificationHelper.showInfo(
+          context: context,
+          message: 'Abriendo mis pedidos...',
         );
         break;
       case 'Direcciones':
@@ -737,8 +739,9 @@ class _ProfileView extends StatelessWidget {
         }();
         break;
       case 'Ayuda':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Abriendo centro de ayuda...')),
+        NotificationHelper.showInfo(
+          context: context,
+          message: 'Abriendo centro de ayuda...',
         );
         break;
       case 'Ajustes':

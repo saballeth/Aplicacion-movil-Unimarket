@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/core/injection_container.dart';
 import 'package:unimarket/presentation/viewmodels/entrepreneur/documents_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/entrepreneur/documents_state.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class DocumentsPage extends StatelessWidget {
   const DocumentsPage({super.key});
@@ -22,18 +23,14 @@ class DocumentsPage extends StatelessWidget {
         body: BlocConsumer<DocumentsCubit, DocumentsState>(
           listener: (context, state) {
             if (state is DocumentsError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
+              NotificationHelper.showError(
+                context: context,
+                message: state.message,
               );
             } else if (state is DocumentUploaded) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Documento cargado exitosamente'),
-                  backgroundColor: Colors.green,
-                ),
+              NotificationHelper.showSuccess(
+                context: context,
+                message: 'Documento cargado exitosamente',
               );
               context.read<DocumentsCubit>().loadDocuments();
             }

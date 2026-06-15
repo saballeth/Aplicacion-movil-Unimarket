@@ -6,6 +6,7 @@ import '../../viewmodels/email_confirmation/email_confirmation_state.dart';
 import 'package:unimarket/core/injection_container.dart';
 import 'package:unimarket/presentation/pages/login/login_page.dart';
 import '../../viewmodels/login/login_cubit.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class EmailConfirmationPage extends StatelessWidget {
   final String email;
@@ -24,13 +25,15 @@ class EmailConfirmationPage extends StatelessWidget {
             child: BlocConsumer<EmailConfirmationCubit, EmailConfirmationState>(
               listener: (context, state) {
                 if (state is EmailConfirmationResent) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
+                  NotificationHelper.showSuccess(
+                    context: context,
+                    message: state.message,
                   );
                 }
                 if (state is EmailConfirmationFailure) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
+                  NotificationHelper.showError(
+                    context: context,
+                    message: state.message,
                   );
                 }
               },

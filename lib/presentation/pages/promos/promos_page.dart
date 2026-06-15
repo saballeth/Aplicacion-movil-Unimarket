@@ -5,6 +5,8 @@ import 'package:unimarket/domain/entities/product_entity.dart';
 import 'package:unimarket/presentation/pages/product_detail/product_detail_page.dart';
 import 'package:unimarket/presentation/viewmodels/cart/cart_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/favorites/favorites_cubit.dart';
+import 'package:unimarket/presentation/viewmodels/product/product_cubit.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class PromosPage extends StatelessWidget {
   const PromosPage({super.key});
@@ -15,6 +17,7 @@ class PromosPage extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => sl<CartCubit>()),
         BlocProvider(create: (_) => sl<FavoritesCubit>()),
+        BlocProvider(create: (_) => sl<ProductCubit>()),
       ],
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -68,67 +71,187 @@ class PromosPage extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
+
+          // Banner de Promoción Principal
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+              height: 120,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [const Color(0xFF4B2AAD), Colors.purple.shade300],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Mega Descuentos',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Aprovecha las mejores ofertas del mes',
+                      style: TextStyle(fontSize: 13, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
 
           // Descuentos destacables
           const Padding(
             padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
             child: Text(
-              'Descuentos destacados',
+              'Descuentos Destacados',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
 
           SizedBox(
             height: 220,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: _getPromoProducts().length > 6
-                  ? 6
-                  : _getPromoProducts().length,
-              itemBuilder: (context, index) {
-                final p = _getPromoProducts()[index];
-                return _buildPromoCard(context, p);
+            child: BlocBuilder<ProductCubit, ProductState>(
+              builder: (context, state) {
+                final promoProducts = context
+                    .read<ProductCubit>()
+                    .getPromoProducts();
+                if (promoProducts.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No hay promociones disponibles',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemCount: promoProducts.length > 6
+                      ? 6
+                      : promoProducts.length,
+                  itemBuilder: (context, index) {
+                    final p = promoProducts[index];
+                    return _buildPromoCard(context, p);
+                  },
+                );
               },
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
-          // Categorías
+          // Ofertas por Mayor Descuento
+          const Padding(
+            padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
+            child: Text(
+              'Mayores Descuentos',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // Grid de mejores ofertas (2x2)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: BlocBuilder<ProductCubit, ProductState>(
+              builder: (context, state) {
+                final promoProducts = context
+                    .read<ProductCubit>()
+                    .getPromoProducts();
+                if (promoProducts.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                // Ordenar por descuento mayor
+                final sortedByDiscount = List<ProductEntity>.from(promoProducts)
+                  ..sort(
+                    (a, b) =>
+                        b.discountPercentage.compareTo(a.discountPercentage),
+                  );
+
+                final topDiscounts = sortedByDiscount.take(4).toList();
+
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: topDiscounts.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 0.75,
+                  ),
+                  itemBuilder: (context, index) {
+                    final product = topDiscounts[index];
+                    return _buildProductCard(context, product);
+                  },
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Todas las promociones
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
                 Text(
-                  'Todas las promociones',
+                  'Todas las Promociones',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                Text('Ver todo', style: TextStyle(color: Colors.blue)),
               ],
             ),
           ),
 
           const SizedBox(height: 8),
 
-          // Grid de productos
+          // Grid de todos los productos
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _getPromoProducts().length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.75,
-              ),
-              itemBuilder: (context, index) {
-                final product = _getPromoProducts()[index];
-                return _buildProductCard(context, product);
+            child: BlocBuilder<ProductCubit, ProductState>(
+              builder: (context, state) {
+                final promoProducts = context
+                    .read<ProductCubit>()
+                    .getPromoProducts();
+                if (promoProducts.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No hay promociones disponibles',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  );
+                }
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: promoProducts.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 0.75,
+                  ),
+                  itemBuilder: (context, index) {
+                    final product = promoProducts[index];
+                    return _buildProductCard(context, product);
+                  },
+                );
               },
             ),
           ),
@@ -188,9 +311,9 @@ class PromosPage extends StatelessWidget {
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text(
-                        '-20%',
-                        style: TextStyle(
+                      child: Text(
+                        '-${product.discountPercentage.toStringAsFixed(0)}%',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -216,14 +339,39 @@ class PromosPage extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '\$${product.price}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue[800],
+                  if (product.isOnSale)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '\$${product.price}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                            decoration: TextDecoration.lineThrough,
+                            decorationColor: Colors.red,
+                            decorationThickness: 2.0,
+                          ),
+                        ),
+                        Text(
+                          '\$${product.discountPrice}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red[800],
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Text(
+                      '\$${product.price}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue[800],
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
@@ -233,13 +381,11 @@ class PromosPage extends StatelessWidget {
                             return ElevatedButton(
                               onPressed: () {
                                 context.read<CartCubit>().addToCart(product);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
+                                NotificationHelper.showSuccess(
+                                  context: context,
+                                  message:
                                       '${product.name} agregado al carrito',
-                                    ),
-                                    duration: const Duration(seconds: 2),
-                                  ),
+                                  duration: const Duration(seconds: 2),
                                 );
                               },
                               style: ElevatedButton.styleFrom(
@@ -377,27 +523,75 @@ class PromosPage extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    '\$${product.price}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.blue[800],
+                  if (product.isOnSale)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '\$${product.price}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                  decoration: TextDecoration.lineThrough,
+                                  decorationColor: Colors.red,
+                                  decorationThickness: 2.0,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red[100],
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '-${product.discountPercentage.toStringAsFixed(0)}%',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                  color: Colors.red[700],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '\$${product.discountPrice}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.red[800],
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Text(
+                      '\$${product.price}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.blue[800],
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
                         context.read<CartCubit>().addToCart(product);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              '${product.name} agregado al carrito',
-                            ),
-                            duration: const Duration(seconds: 2),
-                          ),
+                        NotificationHelper.showSuccess(
+                          context: context,
+                          message: '${product.name} agregado al carrito',
+                          duration: const Duration(seconds: 2),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -427,83 +621,5 @@ class PromosPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  List<ProductEntity> _getPromoProducts() {
-    // Retorna productos de prueba con descuentos
-    return [
-      ProductEntity(
-        id: '1',
-        name: 'Buzo Caqui',
-        description: 'Buzo cómodo y cálido',
-        price: 32600,
-        category: 'Ropa',
-        imageUrl: '',
-        stock: 10,
-        rating: 4.5,
-        isFeatured: true,
-        createdAt: DateTime.now(),
-      ),
-      ProductEntity(
-        id: '2',
-        name: 'Airpods Pro',
-        description: 'Auriculares inalámbricos',
-        price: 18000,
-        category: 'Accesorios',
-        imageUrl: '',
-        stock: 15,
-        rating: 4.8,
-        isFeatured: true,
-        createdAt: DateTime.now(),
-      ),
-      ProductEntity(
-        id: '3',
-        name: 'Zapatillas Nike',
-        description: 'Zapatillas deportivas',
-        price: 25000,
-        category: 'Ropa',
-        imageUrl: '',
-        stock: 8,
-        rating: 4.6,
-        isFeatured: false,
-        createdAt: DateTime.now(),
-      ),
-      ProductEntity(
-        id: '4',
-        name: 'Pizza Margherita',
-        description: 'Pizza fresca y deliciosa',
-        price: 8500,
-        category: 'Comida',
-        imageUrl: '',
-        stock: 20,
-        rating: 4.7,
-        isFeatured: true,
-        createdAt: DateTime.now(),
-      ),
-      ProductEntity(
-        id: '5',
-        name: 'Reloj Smartwatch',
-        description: 'Reloj inteligente con monitor cardíaco',
-        price: 15000,
-        category: 'Accesorios',
-        imageUrl: '',
-        stock: 5,
-        rating: 4.4,
-        isFeatured: false,
-        createdAt: DateTime.now(),
-      ),
-      ProductEntity(
-        id: '6',
-        name: 'Jeans Premium',
-        description: 'Jeans de alta calidad',
-        price: 22000,
-        category: 'Ropa',
-        imageUrl: '',
-        stock: 12,
-        rating: 4.5,
-        isFeatured: false,
-        createdAt: DateTime.now(),
-      ),
-    ];
   }
 }

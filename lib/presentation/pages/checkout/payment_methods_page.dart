@@ -5,7 +5,11 @@ import 'package:unimarket/presentation/models/payment_model.dart';
 import 'package:unimarket/presentation/viewmodels/payment/payment_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unimarket/presentation/pages/order_confirmation/order_confirmation_page.dart';
+import 'package:unimarket/domain/entities/order_entity.dart';
+import 'package:unimarket/domain/entities/address_entity.dart';
+import 'package:unimarket/domain/entities/shipping_option_entity.dart';
 import 'dart:convert';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class PaymentMethodsPage extends StatefulWidget {
   final double totalAmount;
@@ -31,7 +35,11 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     _prefs = await SharedPreferences.getInstance();
     final saved = _prefs.getStringList('saved_payment_methods') ?? [];
     setState(() {
-      _savedMethods = saved.map((e) => PaymentMethod.fromMap(jsonDecode(e) as Map<String, dynamic>)).toList();
+      _savedMethods = saved
+          .map(
+            (e) => PaymentMethod.fromMap(jsonDecode(e) as Map<String, dynamic>),
+          )
+          .toList();
     });
   }
 
@@ -73,7 +81,11 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     return AppBar(
       title: const Text(
         'Métodos de Pago',
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
       ),
       centerTitle: true,
       leading: IconButton(
@@ -127,7 +139,11 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Text(
             'Métodos Guardados',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade700,
+            ),
           ),
         ),
         ..._savedMethods.map((method) => _buildMethodCard(context, method)),
@@ -143,7 +159,11 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Text(
             'Agregar Nuevo Método',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade700,
+            ),
           ),
         ),
         _buildPayPalOption(context),
@@ -200,7 +220,10 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                 children: [
                   Text(
                     method.displayName,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -268,9 +291,15 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('PayPal', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const Text(
+                    'PayPal',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 4),
-                  Text('Pago seguro con tu cuenta PayPal', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+                  Text(
+                    'Pago seguro con tu cuenta PayPal',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  ),
                 ],
               ),
             ),
@@ -326,9 +355,15 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Tarjeta de Crédito', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const Text(
+                    'Tarjeta de Crédito',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 4),
-                  Text('Visa, Mastercard, American Express', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+                  Text(
+                    'Visa, Mastercard, American Express',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  ),
                 ],
               ),
             ),
@@ -384,9 +419,15 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Transferencia Bancaria', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const Text(
+                    'Transferencia Bancaria',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 4),
-                  Text('Todos los bancos colombianos', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+                  Text(
+                    'Todos los bancos colombianos',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  ),
                 ],
               ),
             ),
@@ -427,14 +468,19 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                   children: [
                     const Text(
                       'Información de la Tarjeta',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(
                         labelText: 'Nombre del Titular',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -443,7 +489,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       decoration: InputDecoration(
                         labelText: 'Número de Tarjeta',
                         hintText: '0000 0000 0000 0000',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       keyboardType: TextInputType.number,
                     ),
@@ -456,7 +504,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                             decoration: InputDecoration(
                               labelText: 'Vence',
                               hintText: 'MM/YY',
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             keyboardType: TextInputType.number,
                           ),
@@ -468,7 +518,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                             decoration: InputDecoration(
                               labelText: 'CVV',
                               hintText: '000',
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             keyboardType: TextInputType.number,
                             obscureText: true,
@@ -479,7 +531,8 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                     const SizedBox(height: 16),
                     CheckboxListTile(
                       value: saveForFuture,
-                      onChanged: (val) => setState(() => saveForFuture = val ?? false),
+                      onChanged: (val) =>
+                          setState(() => saveForFuture = val ?? false),
                       title: const Text('Guardar para próximas compras'),
                       controlAffinity: ListTileControlAffinity.leading,
                       contentPadding: EdgeInsets.zero,
@@ -489,15 +542,19 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          if (cardController.text.isEmpty || expiryController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Por favor completa todos los campos')),
+                          if (cardController.text.isEmpty ||
+                              expiryController.text.isEmpty) {
+                            NotificationHelper.showWarning(
+                              context: context,
+                              message: 'Por favor completa todos los campos',
                             );
                             return;
                           }
                           final method = PaymentMethod(
                             id: 'card_${DateTime.now().millisecondsSinceEpoch}',
-                            name: nameController.text.isNotEmpty ? nameController.text : 'Tarjeta',
+                            name: nameController.text.isNotEmpty
+                                ? nameController.text
+                                : 'Tarjeta',
                             type: type,
                             accountNumber: cardController.text,
                             isSaved: saveForFuture,
@@ -555,7 +612,10 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                   children: [
                     const Text(
                       'Información Bancaria',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     TextField(
@@ -563,7 +623,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       decoration: InputDecoration(
                         labelText: 'Banco',
                         hintText: 'Ej: Banco de Bogotá',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -572,7 +634,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       decoration: InputDecoration(
                         labelText: 'Tipo de Cuenta',
                         hintText: 'Ej: Ahorros / Corriente',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -580,14 +644,17 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       controller: accountController,
                       decoration: InputDecoration(
                         labelText: 'Número de Cuenta',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 16),
                     CheckboxListTile(
                       value: saveForFuture,
-                      onChanged: (val) => setState(() => saveForFuture = val ?? false),
+                      onChanged: (val) =>
+                          setState(() => saveForFuture = val ?? false),
                       title: const Text('Guardar para próximas compras'),
                       controlAffinity: ListTileControlAffinity.leading,
                       contentPadding: EdgeInsets.zero,
@@ -597,9 +664,11 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          if (bankController.text.isEmpty || accountController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Por favor completa todos los campos')),
+                          if (bankController.text.isEmpty ||
+                              accountController.text.isEmpty) {
+                            NotificationHelper.showWarning(
+                              context: context,
+                              message: 'Por favor completa todos los campos',
                             );
                             return;
                           }
@@ -644,17 +713,22 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           onPressed: _selectedMethod == null
               ? null
               : () {
-                  context.read<PaymentCubit>().selectPaymentMethod(_selectedMethod!);
+                  context.read<PaymentCubit>().selectPaymentMethod(
+                    _selectedMethod!,
+                  );
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const OrderConfirmationPage(),
+                      builder: (_) =>
+                          OrderConfirmationPage(order: _buildMockOrder()),
                     ),
                   );
                 },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           child: const Text(
             'Confirmar Pago',
@@ -662,6 +736,44 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           ),
         ),
       ),
+    );
+  }
+
+  OrderEntity _buildMockOrder() {
+    return OrderEntity(
+      id: 'ORD-${DateTime.now().millisecondsSinceEpoch}',
+      userId: 'user_123',
+      storeId: 'store_001',
+      storeName: 'UNIMARKET Store',
+      items: const [],
+      deliveryAddress: AddressEntity(
+        id: '1',
+        userId: 'user_123',
+        fullName: 'Juan Pérez',
+        phone: '3001234567',
+        street: 'Calle 45 #23-67',
+        city: 'Bogotá',
+        state: 'Cundinamarca',
+        zipCode: '110111',
+        country: 'Colombia',
+        isDefault: true,
+        createdAt: DateTime.now(),
+      ),
+      shippingOption: const ShippingOptionEntity(
+        id: '1',
+        name: 'Envío Estándar',
+        description: 'Entrega en 5-7 días',
+        cost: 15000,
+        estimatedDays: 6,
+      ),
+      subtotal: widget.totalAmount,
+      shippingCost: 15000,
+      taxAmount: widget.totalAmount * 0.19,
+      totalAmount: widget.totalAmount + 15000 + (widget.totalAmount * 0.19),
+      status: OrderStatus.pending,
+      paymentMethod:
+          _selectedMethod?.type.toString().split('.').last ?? 'creditCard',
+      createdAt: DateTime.now(),
     );
   }
 }

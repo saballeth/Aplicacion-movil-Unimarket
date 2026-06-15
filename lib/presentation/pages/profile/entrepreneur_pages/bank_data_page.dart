@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/core/injection_container.dart';
 import 'package:unimarket/presentation/viewmodels/entrepreneur/bank_data_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/entrepreneur/bank_data_state.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class BankDataPage extends StatefulWidget {
   const BankDataPage({super.key});
@@ -60,18 +61,14 @@ class _BankDataPageState extends State<BankDataPage> {
         body: BlocConsumer<BankDataCubit, BankDataState>(
           listener: (context, state) {
             if (state is BankDataError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
+              NotificationHelper.showError(
+                context: context,
+                message: state.message,
               );
             } else if (state is BankDataUpdated) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Datos bancarios guardados'),
-                  backgroundColor: Colors.green,
-                ),
+              NotificationHelper.showSuccess(
+                context: context,
+                message: 'Dados bancarios guardados',
               );
               setState(() => _isEditing = false);
             } else if (state is WithdrawalSuccess) {

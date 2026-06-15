@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../viewmodels/registration/registration_cubit.dart';
 import '../../viewmodels/registration/registration_state.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -31,13 +32,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
           child: BlocConsumer<RegistrationCubit, RegistrationState>(
             listener: (context, state) {
               if (state is RegistrationFailure) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
+                NotificationHelper.showError(
+                  context: context,
+                  message: state.message,
                 );
               }
               if (state is RegistrationSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Registro exitoso')),
+                NotificationHelper.showSuccess(
+                  context: context,
+                  message: 'Registro exitoso',
                 );
                 Navigator.pop(context);
               }

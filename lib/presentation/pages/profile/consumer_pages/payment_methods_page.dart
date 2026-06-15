@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/core/injection_container.dart';
 import 'package:unimarket/presentation/viewmodels/payment/payment_methods_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/payment/payment_methods_state.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class PaymentMethodsPage extends StatelessWidget {
   const PaymentMethodsPage({super.key});
@@ -22,23 +23,17 @@ class PaymentMethodsPage extends StatelessWidget {
         body: BlocConsumer<PaymentMethodsCubit, PaymentMethodsState>(
           listener: (context, state) {
             if (state is PaymentMethodsError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
+              NotificationHelper.showError(
+                context: context,
+                message: state.message,
               );
             } else if (state is PaymentMethodAdded ||
                 state is PaymentMethodDeleted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    state is PaymentMethodAdded
-                        ? 'Método de pago agregado'
-                        : 'Método de pago eliminado',
-                  ),
-                  backgroundColor: Colors.green,
-                ),
+              NotificationHelper.showSuccess(
+                context: context,
+                message: state is PaymentMethodAdded
+                    ? 'Método de pago agregado'
+                    : 'Método de pago eliminado',
               );
               context.read<PaymentMethodsCubit>().loadPaymentMethods();
             }

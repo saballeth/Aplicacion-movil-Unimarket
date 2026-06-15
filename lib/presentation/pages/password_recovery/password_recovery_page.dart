@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unimarket/presentation/viewmodels/password_recovery/password_recovery_cubit.dart';
 import 'package:unimarket/presentation/viewmodels/password_recovery/password_recovery_state.dart';
 import 'package:unimarket/core/injection_container.dart';
+import 'package:unimarket/core/utils/notification_helper.dart';
 
 class PasswordRecoveryPage extends StatefulWidget {
   const PasswordRecoveryPage({Key? key}) : super(key: key);
@@ -39,15 +40,17 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
         body: BlocConsumer<PasswordRecoveryCubit, PasswordRecoveryState>(
           listener: (context, state) {
             if (state is PasswordRecoverySuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Contrase�a restablecida para ${state.email}')),
+              NotificationHelper.showSuccess(
+                context: context,
+                message: 'Contraseña restablecida para ${state.email}',
               );
               Future.delayed(const Duration(seconds: 1), () {
                 Navigator.pop(context);
               });
             } else if (state is PasswordRecoveryFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
+              NotificationHelper.showError(
+                context: context,
+                message: state.message,
               );
             }
           },
